@@ -31,8 +31,14 @@ class DashboardController extends Controller
             $totalTodaySubmittedSurveyCount = $listData1Clone->where('date', $today)->pluck('totalSurvey')->first();
             $totalMonthlySubmittedSurveyCount = $listData->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
 
+            // $user = User::query();
+
            
             $data = [
+                'totalActivationOfficerCount' => 0,
+                'totalSupervisorCount' => 0,
+                'totalTeritoryOfficerCount' => 0,
+                'totalAreaManagerCount' => 0,
                 'totalTodaySubmittedSurveyCount' => $totalTodaySubmittedSurveyCount,
                 'totalMonthlySubmittedSurveyCount' => $totalMonthlySubmittedSurveyCount
             ];

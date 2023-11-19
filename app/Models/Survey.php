@@ -18,6 +18,10 @@ class Survey extends Model
 
             'user_id',
             'role_id',
+            'surveySubmittedUserName',
+            'surveySubmittedUserEmail',
+            'surveySubmittedUserPhone',
+            'surveySubmittedUserAvatar',
             'binHolderName',
             'binHolderMobile',
             'binHolderEmail',

@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'passport/csrf-cookie'],
+    'paths' => ['api/*', 'passport/csrf-cookie', 'http://localhost:3000'],
 
     'allowed_methods' => ['*'],
 

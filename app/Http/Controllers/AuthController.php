@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use App\Utilities\ProxyRequest;
+use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -101,6 +102,28 @@ class AuthController extends Controller
         }else{
             return $this->throwMessage(200, 'error', 'User crediential mismatch');
         };
+
+    }
+
+
+
+    public function refreshToken(Request $request){
+       // $token = $request->input('token');
+       // dd($token);
+
+       $http = new \GuzzleHttp\Client;
+
+        $response = $http->post('http://127.0.0.1:8000/oauth/token', [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => 'the-refresh-token',
+                'client_id' => ENV('client_id'),
+                'client_secret' => 'client-secret',
+                'scope' => '',
+            ],
+        ]);
+
+        return json_decode((string) $response->getBody(), true);
 
     }
 

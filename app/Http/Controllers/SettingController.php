@@ -37,9 +37,16 @@ class SettingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function getLogo()
     {
-        //
+        try {
+
+            $logo = Setting::first()->logo;
+            return $this->throwMessage(200, 'success', 'logo ', $logo);
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
     }
 
     /**
@@ -78,6 +85,8 @@ class SettingController extends Controller
         $setting = Setting::first();
 
         if(!empty($setting->id)){
+
+           // return $request->file('logo');
 
             $request->merge(['updated_by' => $this->getAuthID()]);
 

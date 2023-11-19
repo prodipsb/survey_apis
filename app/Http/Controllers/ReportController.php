@@ -24,9 +24,45 @@ class ReportController extends Controller
         try {
             $data = [];
             $listData = $this->getModel($this->model)::process();
-            if($request->search){
-                $listData = $listData->where('name', 'like', '%'.$request->search.'%');
+            $listData = $listData->with('surveyItems');
+
+
+            if($request->has('search')) {
+
+                 $listData = $listData->when(request('search'), function ($query, $search) {
+                    $query->whereFullText([
+                        'binHolderName',
+                        'binHolderMobile',
+                        'binHolderEmail',
+                        'shopName',
+                        'brandName',
+                        'productName',
+                        'surveySubmittedUserName',
+                        'surveySubmittedUserEmail',
+                        'surveySubmittedUserPhone'
+                    ], $search);
+                });
             }
+
+
+                // $listData = $listData::search($request->search);
+
+                // $listData = $listData->when(request('search'), function ($query, $search) {
+                //     $query->whereFullText([
+                //         'binHolderName',
+                //         'binHolderMobile',
+                //         'binHolderEmail',
+                //         'shopName',
+                //         'brandName',
+                //         'productName',
+                //     ], $search);
+                // });
+           // }
+
+
+            // if($request->search){
+            //     $listData = $listData->where('name', 'like', '%'.$request->search.'%');
+            // }
             if($request->status){
                     $listData = $listData->where('type', $request->status);
             }
@@ -47,8 +83,9 @@ class ReportController extends Controller
                     'date',
                     'user_id',
                     'role_id',
-                    'submitted_user_name',
-                    'submitted_user_mobile',
+                    'surveySubmittedUserName',
+                    'surveySubmittedUserEmail',
+                    'surveySubmittedUserPhone',
                     'binHolderName', 
                     'binHolderEmail',
                     'binHolderMobile',
@@ -82,19 +119,18 @@ class ReportController extends Controller
                 $listData = $listData->toArray($fields);
 
                 
-             //   dd($listData);
                 return $this->csvExport($listData, $fields, '/uploads/reports');
             }
             $listData = $listData->orderBy('created_at', 'desc');
             
             $listData = $listData->paginate($this->limit);
-          //  dd($listData);
+           // dd($listData);
             return SurveyResource::collection($listData);
 
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
         }
-        return $this->throwMessage(200, 'success', 'All the list of Lessons ', $data);
+       // return $this->throwMessage(200, 'success', 'All the list of Lessons ', $data);
 
     }
 
@@ -106,13 +142,30 @@ class ReportController extends Controller
 
         try {
 
-            $listData = $this->getModel($this->model)::select('user_id', DB::raw('date, count(user_id) as totalSurvey, sum(unitPrice) as totalUniPrice, sum(vatParcent) as totalVat, sum(sdPercent) as totalSdPercent, sum(priceIncludingVat) as totalPriceIncludingVat, sum(priceExcludingVat) as totalPriceExcludingVat, created_at'))->process();
+            $listData = $this->getModel($this->model)::select('user_id', DB::raw('date, surveySubmittedUserName, surveySubmittedUserEmail, surveySubmittedUserPhone, surveySubmittedUserAvatar, count(user_id) as totalSurvey, sum(unitPrice) as totalUniPrice, sum(vatParcent) as totalVat, sum(sdPercent) as totalSdPercent, sum(priceIncludingVat) as totalPriceIncludingVat, sum(priceExcludingVat) as totalPriceExcludingVat, created_at'))->process();
 
             $listData = $listData->with('user');
+
+            if($request->has('search')) {
+
+                $listData = $listData->when(request('search'), function ($query, $search) {
+                   $query->whereFullText([
+                        'binHolderName',
+                        'binHolderMobile',
+                        'binHolderEmail',
+                        'shopName',
+                        'brandName',
+                        'productName',
+                       'surveySubmittedUserName',
+                       'surveySubmittedUserEmail',
+                       'surveySubmittedUserPhone'
+                   ], $search);
+               });
+           }
            
-            if($request->search){
-                $listData = $listData->where('name', 'like', '%'.$request->search.'%');
-            }
+            // if($request->search){
+            //     $listData = $listData->where('name', 'like', '%'.$request->search.'%');
+            // }
             if($request->user_id){
                     $listData = $listData->where('user_id', $request->user_id);
             }
