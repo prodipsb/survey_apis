@@ -23,9 +23,9 @@ return new class extends Migration
                     'surveySubmittedUserName',
                     'surveySubmittedUserPhone',
                     'binHolderName',
-                  //  'binHolderMobile',
+                    'binHolderMobile',
                     'shopName',
-                  //  'productName',
+                    'productName',
                 ],
                 'fulltext_search',
             );
