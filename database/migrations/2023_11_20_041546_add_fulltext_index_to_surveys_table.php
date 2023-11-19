@@ -16,15 +16,16 @@ return new class extends Migration
      
     public function up()
     {
+        Schema::defaultStringLength(191);
         Schema::table('surveys', function (Blueprint $table) {
             $table->index(
                 [
                     'surveySubmittedUserName',
                     'surveySubmittedUserPhone',
                     'binHolderName',
-                    'binHolderMobile',
+                  //  'binHolderMobile',
                     'shopName',
-                    'productName',
+                  //  'productName',
                 ],
                 'fulltext_search',
             );
