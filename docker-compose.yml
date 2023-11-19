@@ -18,6 +18,11 @@ services:
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   webserver:
     image: nginx:alpine
@@ -65,7 +70,6 @@ services:
 
 volumes:
   dbdata:
-    driver: local
 
 networks:
   app-network:
