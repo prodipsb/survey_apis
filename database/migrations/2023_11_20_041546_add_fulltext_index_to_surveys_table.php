@@ -18,16 +18,16 @@ return new class extends Migration
     {
         Schema::table('surveys', function (Blueprint $table) {
             $table->index([
-                'surveySubmittedUserName',
-                'surveySubmittedUserPhone',
-                'binHolderName',
-                'binHolderMobile',
-                'shopName',
-                'productName',
+                'surveySubmittedUserName' => '191',
+                'surveySubmittedUserPhone' => '191',
+                'binHolderName' => '191',
+                'binHolderMobile' => '191',
+                'shopName' => '191',
+                'productName' => '191',
             ], 'fulltext_search');
         });
 
-        DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserPhone, binHolderName, binHolderMobile, shopName, productName)');
+       // DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserPhone, binHolderName, binHolderMobile, shopName, productName)');
     }
 
     /**
