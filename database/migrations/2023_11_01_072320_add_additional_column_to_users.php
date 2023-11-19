@@ -39,6 +39,8 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->string('status')->nullable();
 
+            $table->fullText(['name', 'phone', 'bin_no', 'user_type', 'location']); // adding full-text search indexes
+
             
         });
     }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Http\Traits\FullTextSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,6 +14,8 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
+
+    use FullTextSearch;
 
 
     /**
@@ -69,6 +72,18 @@ class User extends Authenticatable
 
     protected $with = ['role'];
 
+    public $searchable = [
+        'name',
+        'phone',
+        'email',
+        'user_type',
+        'location',
+        'bin_no'
+    ];
+
+    
+
+
     public function isSuperAdmin($email)
     {
         if ($email == 'admin@admin.com') {
@@ -91,6 +106,14 @@ class User extends Authenticatable
 
     public function role(){
         return $this->belongsTo(Role::class);
+    }
+
+    public function supervisor(){
+        return $this->belongsTo(Role::class, 'supervisor_id');
+    }
+
+    public function reportTo(){
+        return $this->belongsTo(Role::class, 'reporting_role_id');
     }
 
     // public function roles() {

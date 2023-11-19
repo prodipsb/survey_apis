@@ -19,6 +19,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('role_id');
+            $table->string('surveySubmittedUserName')->nullable();
+            $table->string('surveySubmittedUserEmail')->nullable();
+            $table->string('surveySubmittedUserPhone')->nullable();
+            $table->string('surveySubmittedUserAvatar')->nullable();
             $table->string('binHolderName')->nullable();
             $table->string('binHolderMobile')->nullable();
             $table->string('binHolderEmail')->nullable();
@@ -73,7 +77,7 @@ return new class extends Migration
             $table->string('binCertificate')->nullable();
             $table->timestamps();
 
-            DB::statement('ALTER TABLE surveys ADD FULLTEXT search(binHolderName, binHolderMobile, binHolderEmail, division, shopName, brandName, category, productName)');
+            DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserEmail, surveySubmittedUserPhone, binHolderName, binHolderMobile, binHolderEmail, shopName, brandName, productName)');
 
         });
     }

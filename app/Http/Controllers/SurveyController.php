@@ -32,7 +32,27 @@ class SurveyController extends Controller
     {
         try {
 
-            $listData = new Survey();
+
+            $listData = Survey::query();
+
+            // dd($request->has('search1'));
+            // if($request->has('search1')){
+
+            //     dd($request->has('search1'));
+
+            //     $listData = $listData::search($request->search);
+
+            //     // $listData = $listData->when(request('search'), function ($query, $search) {
+            //     //     $query->whereFullText([
+            //     //         'binHolderName',
+            //     //         'binHolderMobile',
+            //     //         'binHolderEmail',
+            //     //         'shopName',
+            //     //         'brandName',
+            //     //         'productName',
+            //     //     ], $search);
+            //     // });
+            // }
            
             if ($request->has('start_date') && $request->has('end_date')) {
                 $listData = $listData->whereBetween('created_at', [$request->start_date, $request->end_date]);
@@ -117,6 +137,9 @@ class SurveyController extends Controller
 
 
             $request->merge(['user_id' => $this->getAuthID()]);
+            $request->merge(['surveySubmittedUserName' => Auth::user()->name]);
+            $request->merge(['surveySubmittedUserEmail' => Auth::user()->email]);
+            $request->merge(['surveySubmittedUserPhone' => Auth::user()->phone]);
             $request->merge(['role_id' => $this->getAuthRoleId()]);
 
             $survey = $this->storeData($request, $this->model, $fileUpload = true, $fileInputName = ['shopPic', 'binCertificate'], $path = $this->uploadDir);
@@ -212,7 +235,7 @@ class SurveyController extends Controller
 
         $surveyId = $request->id;   
         try {
-            Survey::findOrFail($surveyId)?->delete();
+            Survey::findOrFail($surveyId)->delete();
             return $this->throwMessage(200, 'success', 'Survey deleted successfully');
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', 'Survey not found');

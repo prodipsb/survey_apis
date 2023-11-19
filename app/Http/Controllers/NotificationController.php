@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\NotificationResource;
 use App\Http\Traits\GlobalTraits;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -23,10 +24,6 @@ class NotificationController extends Controller
     {
         try {
 
-            // $notifications = auth()->user()->notifications()
-            //                    ->orderBy('read_at', 'asc')
-            //                    ->orderBy('created_at', 'desc')
-            //                    ->get()
 
             $listData =  auth()->user()->notifications();
            
@@ -38,9 +35,9 @@ class NotificationController extends Controller
             $listData = $listData->orderBy('created_at', 'desc');
 
             $listData = $listData->paginate($this->limit);
-            //return CourseResource::collection($listData);
+            return NotificationResource::collection($listData);
 
-            return $this->throwMessage(200, 'success', 'All the list of notifications ', $listData);
+          //  return $this->throwMessage(200, 'success', 'All the list of notifications ', $listData);
 
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
@@ -112,9 +109,9 @@ class NotificationController extends Controller
     }
 
 
-    public function read($id)
+    public function read(Request $request)
     {
-        
+        $id = $request->id;
 
         try {
 
@@ -127,6 +124,23 @@ class NotificationController extends Controller
 
         
     }
+
+    public function allNotificationRead(Request $request)
+    {
+
+        try {
+
+            auth()->user()->notifications->markAsRead();
+            return $this->throwMessage(200, 'success', 'All Notification Mark As Read ');
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413,'error',$e->getMessage());   
+        }
+
+        
+    }
+
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -175,4 +189,15 @@ class NotificationController extends Controller
             return $this->throwMessage(413, 'error', 'Notification not found');
         }
     }
+
+    public function allDestroy(Request $request)
+    {
+        try {
+            auth()->user()->notifications->delete();
+            return $this->throwMessage(200, 'success', 'All Notifications deleted successfully');
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', 'Notification not found');
+        }
+    }
+
 }

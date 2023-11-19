@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Http\Traits\GlobalTraits;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,18 +26,56 @@ class UserController extends Controller
 
             $listData = new User();
            
+            $listData = $listData->with(['role', 'supervisor', 'reportTo']);
+            
             if ($request->has('start_date') && $request->has('end_date')) {
-                $listData = $listData->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                $listData = $listData->whereBetween('date_of_joining', [$request->start_date, $request->end_date]);
             } 
 
-            // if ($request->has('export') && $request->get('export') == true) {
-            //     $listData = SurveyResource::collection($listData->get());
-            //     $listData = $listData->toArray($request);
-            //     return $this->csvExport($listData, $request);
-            // }
-            if($request->search){
-                $listData = $listData->where('name', 'like', '%'.$request->search.'%');
+            if($request->has('search')) {
+                $listData = $listData->when(request('search'), function ($query, $search) {
+                   $query->whereFullText([
+                    'name',
+                    'phone',
+                    'email',
+                    'user_type',
+                    'location',
+                    'bin_no'
+                   ], $search);
+               });
+           }
+
+            if ($request->has('export') && $request->get('export') == true) {
+                $listData = UserResource::collection($listData->get());
+                $fields = [
+                    'id',
+                    'name',
+                    'email',
+                    'phone',
+                    'user_type',
+                    'gender',
+                    'bio',
+                    'date_of_joining',
+                    'country',
+                    'city',
+                    'division',
+                    'location',
+                    'longitude',
+                    'latitude',
+                    'last_login',
+                    'last_logout',
+                    'status'
+
+                ];
+                $listData = $listData->toArray($fields);
+
+                
+             //   dd($listData);
+                return $this->csvExport($listData, $fields);
             }
+            // if($request->search){
+            //     $listData = $listData->where('name', 'like', '%'.$request->search.'%');
+            // }
 
             $listData = $listData->orderBy('created_at', 'desc');
 
@@ -53,6 +92,24 @@ class UserController extends Controller
 
     }
 
+
+    public function getUsers()
+    {
+        try {
+
+            $listData = new User();
+            $listData = $listData->select('id', 'name');
+            $listData = $listData->orderBy('created_at', 'desc');
+            $listData = $listData->get();
+
+            return $this->throwMessage(200, 'success', 'All the list of Courses ', $listData);
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
+        
+
+    }
 
 
 
@@ -108,24 +165,36 @@ class UserController extends Controller
         $validation = Validator::make( $inputs, $rules );
     
         if ( $validation->fails() ) {
-            return $validation->errors(); 
+            return $this->throwMessage(400, 'error', $validation->errors());
+           // return $validation->errors(); 
         }
 
 
         try {
 
-            $hashPassword = Hash::make($request->password);
+            if(!empty($request->id)){
 
-            $request->merge(['password' => $hashPassword]);
-            $request->merge(['created_by' => $this->getAuthID()]);
+                $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['password', 'email', 'role', 'supervisor', 'report_to'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
 
-            $user = $this->storeData($request, $this->model, $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
+            }else{
 
-            // assign user to role
-            if($request->role_id){
-                $role = Role::findOrFail($request->role_id);
-                $user->assignRole($role);
+                $hashPassword = Hash::make($request->password);
+
+                $request->merge(['password' => $hashPassword]);
+                $request->merge(['created_by' => $this->getAuthID()]);
+                $request->merge(['country' => 'Bangladesh']);
+
+                $user = $this->storeData($request, $this->model, $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
+
+                // assign user to role
+                if($request->role_id){
+                    $role = Role::findOrFail($request->role_id);
+                    $user->assignRole($role);
+                }
+
             }
+
+            
 
             return $this->throwMessage(200, 'success', $message);
 
@@ -141,7 +210,7 @@ class UserController extends Controller
     public function getUser($id){
 
         try{
-             $user = User::with('role')->findOrFail($id);
+             $user = User::with(['role', 'supervisor', 'reportTo'])->findOrFail($id);
         
             return $this->throwMessage(200, 'success', 'user details', $user);
 

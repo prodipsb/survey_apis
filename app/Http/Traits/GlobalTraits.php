@@ -65,6 +65,16 @@ trait GlobalTraits
         return $course->title;
     }
 
+    public function isSuperAdmin($email)
+    {
+        if ($email == 'admin@admin.com') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     public function isAdmin($id){
         $admin = $this->getModel('User')->where(['id' => $id, 'userType' => 'admin'])->first();
         if ($admin) {
@@ -437,6 +447,35 @@ trait GlobalTraits
 
 
 
+    // public function csvExport($data =[], $heading = [])
+    // {
+    //     $fileName = 'export_'.time().'.csv';
+        
+    //     $headers = array(
+    //         "Content-type" => "text/csv",
+    //         "Content-Disposition" => "attachment; filename=".$fileName,
+    //         "Pragma" => "no-cache",
+    //         "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+    //         "Expires" => "0"
+    //     );
+        
+    //     $columns = $heading;
+    //   //  dd('$columns', $columns);
+
+    //     $callback = function () use ($data, $columns) {
+    //         $file = fopen('php://output', 'w');
+    //         fputcsv($file, $columns);
+
+    //         foreach ($data as $item) {
+    //             fputcsv($file, $item);
+    //         }
+    //         fclose($file);
+    //     };
+    //     return response()->stream($callback, 200, $headers);
+    // }
+
+
+
     public function csvExport($data =[], $heading = [])
     {
         $fileName = 'export_'.time().'.csv';
@@ -450,7 +489,6 @@ trait GlobalTraits
         );
         
         $columns = $heading;
-      //  dd('$columns', $columns);
 
         $callback = function () use ($data, $columns) {
             $file = fopen('php://output', 'w');
@@ -463,6 +501,7 @@ trait GlobalTraits
         };
         return response()->stream($callback, 200, $headers);
     }
+
 
     // public function applyFilter($request, $userQuery)
     // {

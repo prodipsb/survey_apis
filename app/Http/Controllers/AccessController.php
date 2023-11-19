@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Validator;
 
 class AccessController extends Controller
 {
+
+    protected $limit = 10; 
     public function throwMessage($code, $status, $message, $data = false)
     {
         if ($data) {
@@ -90,15 +92,30 @@ class AccessController extends Controller
     }
 
 
-    public function getRoles()
-    {
-        $roles = $this->allRole();
-        return $this->throwMessage(200, 'success', 'All the roles list', $roles);
-    }
 
-    public function allRole()
+    public function getRoles(Request $request)
     {
-        return Role::get();
+        // dd($request->pagination);
+
+        try {
+            $listData = Role::query();
+            if($request->search){
+                $listData = $listData->where('name', 'like', '%'.$request->search.'%');
+            }
+            
+           // $listData = $listData->orderBy('created_at', 'desc');
+            
+            if($request->pagination){
+                $listData = $listData->paginate($this->limit);
+            }else{
+                $listData = $listData->get();
+            }
+
+            return $this->throwMessage(200, 'success', 'All Relos', $listData);
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
     }
 
 
@@ -133,7 +150,7 @@ class AccessController extends Controller
         }
         //delete all role for this user
         $model = new User();
-        $user = $model->findUserById($request->user_id);
+        $user = $model->findOrFail($request->user_id);
         $user->roles()->detach();
 
         return $this->throwMessage(200, 'success', 'Successfully have removed all Role the User!');
@@ -178,9 +195,33 @@ class AccessController extends Controller
 
 
 
-    public function allPermission()
+    public function allPermission(Request $request)
     {
-        return Permission::all();
+
+        try {
+            $listData = Permission::query();
+            if($request->search){
+                $listData = $listData->where('name', 'like', '%'.$request->search.'%');
+            }
+            
+           
+           // $listData = $listData->orderBy('created_at', 'desc');
+            
+            if($request->pagination){
+                $listData = $listData->paginate($this->limit);
+            }else{
+                $listData = $listData->get();
+            }
+            
+
+            return $this->throwMessage(200, 'success', 'All Permission', $listData);
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
+
+
+
     }
 
     public function getPermissions(Request $request)
@@ -419,15 +460,82 @@ class AccessController extends Controller
         if (!$isExist) {
             return $this->throwMessage(404, 'error', 'Role is not exist!');
         }
+
+
         try {
+
             $data = Role::where('id', $request->id)->pluck('name');
-            // return $data;
-            $users = User::role($data[0])->get();
+            $user = User::query();
+            $users = $user->role($data[0]);
+
+            if($request->search){
+                $users = $users->select('id', 'name')->where('name', 'like', '%'.$request->search.'%');
+            }
+                        
+            if($request->pagination){
+                $users = $users->paginate($this->limit);
+            }else{
+                $users = $users->get();
+            }
+
+
+            // $users = User::role($data[0])->get();
             return $this->throwMessage(200, 'success', "Role information", $users);
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
         }
     }
+
+
+
+
+    public function getExcludeRoleUsers(Request $request)
+    {
+
+      //  dd($request->role_id);
+        $isSuper = $this->superAdminCheck();
+        if (!$isSuper) {
+            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+        }
+        $isExist = $this->checkIfExistRole($request->role_id);
+        if (!$isExist) {
+            return $this->throwMessage(404, 'error', 'Role is not exist!');
+        }
+
+
+       
+
+
+        try {
+
+        $data = Role::where('id', $request->role_id)->pluck('name');
+
+        $users = User::select('id', 'name')->whereDoesntHave('roles', function ($query) use ($data) {
+            $query->where('name', $data[0]);
+        });
+
+        if($request->search){
+            $users = $users->select('id', 'name')->where('name', 'like', '%'.$request->search.'%');
+        }
+                    
+        if($request->pagination){
+            $users = $users->paginate($this->limit);
+        }else{
+            $users = $users->get();
+        }
+
+
+        return $this->throwMessage(200, 'success', "User without this role", $users);
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
+    }
+
+    
+
+
+
 
     public function showUserByPermission(Request $request)
     {
