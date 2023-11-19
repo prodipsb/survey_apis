@@ -27,7 +27,6 @@ return new class extends Migration
                     'productName',
                 ],
                 'fulltext_search',
-                ['algorithm' => 'fulltext']
             );
         });
 
