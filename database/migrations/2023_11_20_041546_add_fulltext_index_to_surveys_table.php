@@ -12,6 +12,8 @@ return new class extends Migration
      *
      * @return void
      */
+
+     
     public function up()
     {
         Schema::table('surveys', function (Blueprint $table) {
@@ -25,7 +27,7 @@ return new class extends Migration
                 'shopName',
                 'brandName',
                 'productName',
-            ], 'fulltext_search', ['length' => 255]); // Set a custom length for the index
+            ], 'fulltext_search', ['length' => 255]);
         });
 
         DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserEmail, surveySubmittedUserPhone, binHolderName, binHolderMobile, binHolderEmail, shopName, brandName, productName)');
