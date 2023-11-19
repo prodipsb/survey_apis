@@ -26,7 +26,10 @@ class RolesAndPermissionsSeeder extends Seeder
 
             $user = User::where('email', 'admin@admin.com')->first();
             $user->assignRole($role);
-    
+
+
+            $permission = Permission::create(['name' => 'web login', 'guard_name' => 'api']);
+            $role->givePermissionTo('web login');
 
     }
 }
