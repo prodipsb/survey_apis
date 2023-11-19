@@ -25,7 +25,7 @@ return new class extends Migration
                     'binHolderName',
                     'binHolderMobile',
                     'shopName',
-                    'productName',
+                  //  'productName',
                 ],
                 'fulltext_search',
             );
