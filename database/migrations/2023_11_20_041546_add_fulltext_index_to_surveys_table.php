@@ -27,10 +27,10 @@ return new class extends Migration
                 'shopName',
                 'brandName',
                 'productName',
-            ], 'fulltext_search', ['length' => 255]);
+            ], 'fulltext_search');
         });
 
-        DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserEmail, surveySubmittedUserPhone, binHolderName, binHolderMobile, binHolderEmail, shopName, brandName, productName)');
+       // DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserEmail, surveySubmittedUserPhone, binHolderName, binHolderMobile, binHolderEmail, shopName, brandName, productName)');
     }
 
     /**
