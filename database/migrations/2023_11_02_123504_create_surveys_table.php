@@ -77,8 +77,6 @@ return new class extends Migration
             $table->string('binCertificate')->nullable();
             $table->timestamps();
 
-            DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserEmail, surveySubmittedUserPhone, binHolderName, binHolderMobile, binHolderEmail, shopName, brandName, productName)');
-
         });
     }
 
