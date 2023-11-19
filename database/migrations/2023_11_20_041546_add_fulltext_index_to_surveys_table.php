@@ -15,22 +15,20 @@ return new class extends Migration
     public function up()
     {
         Schema::table('surveys', function (Blueprint $table) {
-            Schema::table('surveys', function (Blueprint $table) {
-                $table->index([
-                    'surveySubmittedUserName',
-                    'surveySubmittedUserEmail',
-                    'surveySubmittedUserPhone',
-                    'binHolderName',
-                    'binHolderMobile',
-                    'binHolderEmail',
-                    'shopName',
-                    'brandName',
-                    'productName',
-                ], 'fulltext_search');
-            });
-    
-            DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserEmail, surveySubmittedUserPhone, binHolderName, binHolderMobile, binHolderEmail, shopName, brandName, productName)');
+            $table->index([
+                'surveySubmittedUserName',
+                'surveySubmittedUserEmail',
+                'surveySubmittedUserPhone',
+                'binHolderName',
+                'binHolderMobile',
+                'binHolderEmail',
+                'shopName',
+                'brandName',
+                'productName',
+            ], 'fulltext_search', ['length' => 255]); // Set a custom length for the index
         });
+
+        DB::statement('ALTER TABLE surveys ADD FULLTEXT search(surveySubmittedUserName, surveySubmittedUserEmail, surveySubmittedUserPhone, binHolderName, binHolderMobile, binHolderEmail, shopName, brandName, productName)');
     }
 
     /**
