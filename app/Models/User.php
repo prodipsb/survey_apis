@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -114,6 +115,10 @@ class User extends Authenticatable
 
     public function reportTo(){
         return $this->belongsTo(Role::class, 'reporting_role_id');
+    }
+
+    public function permissions(){
+        return $this->belongsTo(Permission::class);
     }
 
     // public function roles() {

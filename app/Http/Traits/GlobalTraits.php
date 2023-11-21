@@ -84,6 +84,32 @@ trait GlobalTraits
         }
     }
 
+
+    public function getAuthUserPermissions($search){
+
+         $permissions = [];
+         $user = Auth::user();
+
+         
+         foreach ($user->roles as $role) {
+            $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
+        }
+
+
+        // Custom callback function to filter elements
+        $filteredPermissions = array_filter($permissions, function ($name) use ($search) {
+            // Case-insensitive partial match
+            return stripos($name, $search) !== false;
+        });
+
+        return array_values($filteredPermissions);
+
+
+
+    }
+
+
+
     
 
     public function throwMessage($code, $status, $message, $data = false)

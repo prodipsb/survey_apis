@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Traits\GlobalTraits;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class DashboardController extends Controller
 {
@@ -31,14 +33,20 @@ class DashboardController extends Controller
             $totalTodaySubmittedSurveyCount = $listData1Clone->where('date', $today)->pluck('totalSurvey')->first();
             $totalMonthlySubmittedSurveyCount = $listData->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
 
-            // $user = User::query();
+             $roles = Role::whereNot('id', 1)->get();
+
+             foreach($roles as $role){
+                $count = User::where('role_id', $role->id)->count();
+                $userData = [
+                    'name' => $role->name, 'count' => $count
+                ];
+
+                $user[] = $userData;
+             }
 
            
             $data = [
-                'totalActivationOfficerCount' => 0,
-                'totalSupervisorCount' => 0,
-                'totalTeritoryOfficerCount' => 0,
-                'totalAreaManagerCount' => 0,
+               'userStats' => $user,
                 'totalTodaySubmittedSurveyCount' => $totalTodaySubmittedSurveyCount,
                 'totalMonthlySubmittedSurveyCount' => $totalMonthlySubmittedSurveyCount
             ];
