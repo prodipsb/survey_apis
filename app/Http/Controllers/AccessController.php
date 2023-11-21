@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Traits\GlobalTraits;
+use GuzzleHttp\ClientTrait;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
 class AccessController extends Controller
 {
 
+    use GlobalTraits;
     protected $limit = 10; 
     public function throwMessage($code, $status, $message, $data = false)
     {
@@ -94,22 +97,31 @@ class AccessController extends Controller
 
 
     public function getRoles(Request $request)
-    {
-        // dd($request->pagination);
+    { 
 
+
+        $permissions = $this->getAuthUserPermissions('role');
+        
+       
         try {
             $listData = Role::query();
             if($request->search){
                 $listData = $listData->where('name', 'like', '%'.$request->search.'%');
             }
-            
-           // $listData = $listData->orderBy('created_at', 'desc');
-            
+
+
             if($request->pagination){
                 $listData = $listData->paginate($this->limit);
             }else{
                 $listData = $listData->get();
             }
+
+            $listData = [
+                'permissions' => $permissions,
+                'data' => $listData
+            ];
+            
+
 
             return $this->throwMessage(200, 'success', 'All Relos', $listData);
 
@@ -198,6 +210,8 @@ class AccessController extends Controller
     public function allPermission(Request $request)
     {
 
+        $permissions = $this->getAuthUserPermissions('permission');
+
         try {
             $listData = Permission::query();
             if($request->search){
@@ -212,6 +226,11 @@ class AccessController extends Controller
             }else{
                 $listData = $listData->get();
             }
+
+            $listData = [
+                'permissions' => $permissions,
+                'data' => $listData
+            ];
             
 
             return $this->throwMessage(200, 'success', 'All Permission', $listData);

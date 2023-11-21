@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -119,9 +120,7 @@ class UserController extends Controller
         $user = $request->user();
 
         //Check if this is super admin or not
-        if (!$this->isSuperAdmin($user->email)) {
-            return $this->throwMessage(413, 'error', 'Permission not granted, Only Super Admin has the access to register new user');
-        }
+       
 
         // $this->validate($request, [
         //     'name' => 'required',
@@ -135,6 +134,10 @@ class UserController extends Controller
 
         // Create new user
         if(!empty($request->id)){
+
+            if (!$this->isSuperAdmin($user->email)) {
+                return $this->throwMessage(413, 'error', 'Permission not granted, Only Super Admin has the access to register new user');
+            }
 
             $rules = [
                 'name' => 'required',
@@ -178,17 +181,22 @@ class UserController extends Controller
 
             }else{
 
+                if($request->role_id){
+                    $role = Role::findOrFail($request->role_id);
+                    $user->assignRole($role);
+                }
+
                 $hashPassword = Hash::make($request->password);
 
                 $request->merge(['password' => $hashPassword]);
                 $request->merge(['created_by' => $this->getAuthID()]);
                 $request->merge(['country' => 'Bangladesh']);
+                $request->merge(['user_type' => str::slug($role->name, '_')]);
 
                 $user = $this->storeData($request, $this->model, $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
 
                 // assign user to role
                 if($request->role_id){
-                    $role = Role::findOrFail($request->role_id);
                     $user->assignRole($role);
                 }
 
@@ -224,9 +232,13 @@ class UserController extends Controller
 
     public function userProfile(){
 
-
         try {
-            $user = User::with('role')->findOrFail(Auth::user()->id);
+            $permissions = [];
+            $user = User::with('roles')->findOrFail(Auth::user()->id);
+            foreach ($user->roles as $role) {
+                $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
+            }
+            $user->permissions = $permissions;
             return $this->throwMessage(200, 'success', 'User Details', $user);
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', 'User not found');

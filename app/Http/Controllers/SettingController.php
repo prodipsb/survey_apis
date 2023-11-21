@@ -62,8 +62,8 @@ class SettingController extends Controller
         $user = $request->user();
 
         //Check if this is super admin or not
-        if ($user->user_type !== 'admin') {
-            return $this->throwMessage(413, 'error', 'Permission not granted, Only Super Admin has the access to register new user');
+        if (!$this->isSuperAdmin($user->email)) {
+            return $this->throwMessage(413, 'error', 'Permission not granted, Only Super Admin has setting access');
         }
 
 
