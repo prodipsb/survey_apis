@@ -55,6 +55,7 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::post('set-permission', [AccessController::class, 'setPermission']);
     Route::get('user-permissions', [AccessController::class, 'userInformationWithPermission']);
     Route::post('remove-permission', [AccessController::class, 'removePermissionFromUser']);
+    Route::post('role/remove-permissions', [AccessController::class, 'removePermissionFromRole']);
     Route::get('permission-by-role', [AccessController::class, 'roleViaPermission']);
 
 
@@ -66,6 +67,7 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::get('user/{id}', [UserController::class, 'getUser']);
     Route::post('user-delete', [UserController::class, 'deleteUser']);
     Route::get('profile', [UserController::class, 'userProfile'])->name('user.profile');
+    Route::post('password-update', [UserController::class, 'passwordUpdate'])->name('password.update');
     Route::post('avatar-update', [UserController::class, 'userAvatarUpdate'])->name('user.avatar');
 
 

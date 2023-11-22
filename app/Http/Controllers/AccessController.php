@@ -15,6 +15,7 @@ use App\Models\Supervisor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AccessController extends Controller
@@ -265,6 +266,49 @@ class AccessController extends Controller
 
 
 
+    // public function setPermission(Request $request)
+    // {
+    //     // Validation
+    //     $validator = Validator::make($request->all(), [
+    //         'role_id' => 'required',
+    //         'permissions' => 'required|array', // Make sure permissions is an array
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return $this->throwMessage(400, 'error', $validator->errors()->first());
+    //     }
+
+    //     // Check super admin
+    //     $isSuper = $this->superAdminCheck();
+    //     if (!$isSuper) {
+    //         return $this->throwMessage(403, 'error', 'Permission denied. Only superadmin can access!');
+    //     }
+
+    //     // Find the role
+    //     try {
+    //         $role = Role::findOrFail($request->role_id);
+    //     } catch (\Exception $e) {
+    //         // Log the exception for debugging
+    //         Log::error('Error finding role: ' . $e->getMessage());
+
+    //         return $this->throwMessage(404, 'error', 'Role not found');
+    //     }
+
+    //     // Sync permissions
+    //     try {
+    //         $role->syncPermissions(['view reports']);
+    //     } catch (\Exception $e) {
+    //         // Log the exception for debugging
+    //         Log::error('Error syncing permissions: ' . $e->getMessage());
+
+    //         return $this->throwMessage(500, 'error', 'Error setting permissions. ' . $e->getMessage());
+    //     }
+
+    //     return $this->throwMessage(200, 'success', 'Successfully set the permission!');
+    // }
+
+
+
     public function setPermission(Request $request)
     {
 
@@ -282,8 +326,8 @@ class AccessController extends Controller
       try {
 
 
-        $role = Role::findOrFail($request->role_id);
-        
+         $role = Role::findOrFail($request->role_id);
+        // $role->syncPermissions($request->permissions);
 
         foreach ($request->permissions as $val) {
             $permission = Permission::find($val);
@@ -291,6 +335,39 @@ class AccessController extends Controller
         }
 
         return $this->throwMessage(200, 'success', 'Successfully set the permission!');
+
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', 'Role not found');
+        }
+        
+    }
+
+
+    public function removePermissionFromRole(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [ 'role_id' => 'required','permissions' => 'required' ]);
+
+        if ($validator->fails()) { return $validator->errors(); }
+
+        $isSuper = $this->superAdminCheck();
+        if (!$isSuper) {
+            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+        }
+
+
+      try {
+
+
+         $role = Role::findOrFail($request->role_id);
+
+        foreach ($request->permissions as $val) {
+            $permission = Permission::find($val);
+            $role->revokePermissionTo($permission->name);
+        }
+
+        return $this->throwMessage(200, 'success', 'Successfully remove the permission!');
 
 
         } catch (\Exception $e) {
@@ -315,6 +392,9 @@ class AccessController extends Controller
         }
 
         try {
+
+        // $user->syncPermissions(['edit articles', 'delete articles']);
+
         $permission = Permission::findOrFail($request->permission_id);
         $model = new User();
         $user = $model->findOrFail($request->user_id);
@@ -326,6 +406,31 @@ class AccessController extends Controller
             return $this->throwMessage(413, 'error', $e->getMessage());
         }
     }
+
+
+    // public function removePermissionFromRole(Request $request)
+    // {
+    //     if (!$this->superAdminCheck()) {
+    //         return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+    //     }
+
+
+    //     try {
+
+    //   //  $user->syncPermissions(['edit articles', 'delete articles']);
+
+    //     $permission = Permission::findOrFail($request->permission_id);
+    //     $model = new User();
+    //     $user = $model->findOrFail($request->user_id);
+    //     $user->revokePermissionTo($permission->name);
+
+    //     return $this->throwMessage(200, 'success', 'Successfully removed permission!');
+
+    //     } catch (\Exception $e) {
+    //         return $this->throwMessage(413, 'error', $e->getMessage());
+    //     }
+    // }
+
 
 
 

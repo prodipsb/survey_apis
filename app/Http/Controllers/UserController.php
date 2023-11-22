@@ -268,6 +268,43 @@ class UserController extends Controller
     }
 
 
+    public function passwordUpdate(Request $request){
+
+        $authId = Auth::id();
+        $inputs = $request->all();
+
+        $rules = [
+            'password' => 'required| min:6|confirmed',
+            'password_confirmation' => 'required| min:6',
+        ];
+
+        $validation = Validator::make( $inputs, $rules );
+
+        if ( $validation->fails() ) {
+            return $this->throwMessage(400, 'error', $validation->errors());
+        }
+
+
+
+        try {
+
+            $hashPassword = Hash::make($request->password);
+
+            $request->merge(['password' => $hashPassword]);
+
+            $this->updateData($request, $authId, $this->model, $exceptFieldsArray = ['password_confirmation'], $fileUpload = false);
+
+            return $this->throwMessage(200, 'success','user password', 'User Password Updated Succesfully!');
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', 'User not found');
+        }
+        
+
+
+    }
+
+
     public function deleteUser(Request $request)
     {
         try {
