@@ -177,7 +177,7 @@ class UserController extends Controller
 
             if(!empty($request->id)){
 
-                $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['password', 'email', 'role', 'supervisor', 'report_to', 'permissions'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
+                $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['password', 'email', 'role', 'supervisor', 'report_to', 'permissions', 'roles'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
 
             }else{
 
