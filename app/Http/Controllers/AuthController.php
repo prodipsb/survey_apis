@@ -113,7 +113,7 @@ class AuthController extends Controller
 
        $http = new \GuzzleHttp\Client;
 
-        $response = $http->post('http://127.0.0.1:8000/oauth/token', [
+        $response = $http->post('http://4.193.55.34:8080/oauth/token', [
             'form_params' => [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => 'the-refresh-token',
