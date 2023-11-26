@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
@@ -108,6 +109,8 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::post('notifications-delete', [NotificationController::class, 'allDestroy'])->name('notification.all.destroy');
 
     Route::post('push-notification/send', [NotificationController::class, 'pushNotificationSend'])->name('push.notification.send');
+    Route::post('store/device-tokens', [DeviceController::class, 'storeDeviceToken'])->name('store.device.token');
+    Route::get('device-tokens', [DeviceController::class, 'getDeviceTokens'])->name('device.tokens');
 
 
     Route::post('general-setting-update', [AccessController::class, 'update'])->name('setting.update');

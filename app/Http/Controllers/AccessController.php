@@ -393,8 +393,6 @@ class AccessController extends Controller
 
         try {
 
-        // $user->syncPermissions(['edit articles', 'delete articles']);
-
         $permission = Permission::findOrFail($request->permission_id);
         $model = new User();
         $user = $model->findOrFail($request->user_id);

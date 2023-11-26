@@ -41,7 +41,6 @@ class UserController extends Controller
                     'email',
                     'user_type',
                     'location',
-                    'bin_no'
                    ], $search);
                });
            }

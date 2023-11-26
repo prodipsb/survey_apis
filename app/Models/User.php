@@ -78,8 +78,7 @@ class User extends Authenticatable
         'phone',
         'email',
         'user_type',
-        'location',
-        'bin_no'
+        'location'
     ];
 
     
