@@ -86,8 +86,13 @@ class DeviceController extends Controller
      * @param  \App\Models\Device  $device
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Device $device)
+    public function deleteDeviceToken(Request $request)
     {
-        //
+        try {
+            Device::findOrFail($request->id)?->delete();
+            return $this->throwMessage(200, 'success', 'Device token deleted successfully');
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', 'Device token not found');
+        }
     }
 }
