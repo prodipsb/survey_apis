@@ -193,7 +193,6 @@ class SurveyController extends Controller
     {
 
             $inputs = $request->all();
-           // dd($inputs);
 
             $rules = [
                 'id' => 'required',

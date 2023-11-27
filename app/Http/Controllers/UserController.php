@@ -134,8 +134,9 @@ class UserController extends Controller
         // Create new user
         if(!empty($request->id)){
 
-            if (!$this->isSuperAdmin($user->email)) {
-                return $this->throwMessage(413, 'error', 'Permission not granted, Only Super Admin has the access to register new user');
+
+            if (!$this->isSuperAdmin($user->user_type)) {
+                return $this->throwMessage(413, 'error', 'Permission not granted, Only Admin has the access to register new user');
             }
 
             $rules = [
@@ -180,11 +181,7 @@ class UserController extends Controller
 
             }else{
 
-                if($request->role_id){
-                    $role = Role::findOrFail($request->role_id);
-                    $user->assignRole($role);
-                }
-
+                $role = Role::findOrFail($request->role_id);
                 $hashPassword = Hash::make($request->password);
 
                 $request->merge(['password' => $hashPassword]);

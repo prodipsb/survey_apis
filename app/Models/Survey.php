@@ -118,7 +118,6 @@ class Survey extends Model
     public function scopeProcess($query)
     {
 
-
       if(Auth::user()->role_id = 1){
         $userProcessId = [1,2,3,4,5];
       }elseif(Auth::user()->role_id = 2){

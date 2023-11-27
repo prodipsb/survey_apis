@@ -65,9 +65,9 @@ trait GlobalTraits
         return $course->title;
     }
 
-    public function isSuperAdmin($email)
+    public function isSuperAdmin($userType)
     {
-        if ($email == 'admin@admin.com') {
+        if ($userType == 'admin') {
             return true;
         } else {
             return false;
