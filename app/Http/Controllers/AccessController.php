@@ -47,17 +47,17 @@ class AccessController extends Controller
     }
 
 
-    public function isSuperAdmin($email)
+    public function isSuperAdmin($userType)
     {
         $model = new User();
-        return $model->isSuperAdmin($email);
+        return $model->isSuperAdmin($userType);
     }
 
     //Check if this is super admin or not
     public function superAdminCheck()
     {
         $user = auth()->user();
-        if (!$this->isSuperAdmin($user->email)) {
+        if (!$this->isSuperAdmin($user->user_type)) {
             return false;
         } else {
             return true;
@@ -73,7 +73,7 @@ class AccessController extends Controller
 
         $isSuper = $this->superAdminCheck();
         if (!$isSuper) {
-            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+            return $this->throwMessage(404, 'error', 'Permission denied, Only admin can access!');
         }
 
         //create
@@ -196,9 +196,8 @@ class AccessController extends Controller
     public function permissionCreate(Request $request)
     {
 
-        $isSuper = $this->superAdminCheck();
-        if (!$isSuper) {
-            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+        if (Auth::user()->user_type !== 'admin') {
+            return $this->throwMessage(404, 'error', 'Permission denied, Only Admin can access!');
         }
         //create
         Permission::create(['name' => $request->name, 'guard_name' => 'api']);

@@ -62,8 +62,8 @@ class SettingController extends Controller
         $user = $request->user();
 
         //Check if this is super admin or not
-        if (!$this->isSuperAdmin($user->email)) {
-            return $this->throwMessage(413, 'error', 'Permission not granted, Only Super Admin has setting access');
+        if (!$this->isSuperAdmin($user->user_type)) {
+            return $this->throwMessage(413, 'error', 'Permission not granted, Only Admin has setting access');
         }
 
 
