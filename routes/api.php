@@ -111,6 +111,8 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::post('push-notification/send', [NotificationController::class, 'pushNotificationSend'])->name('push.notification.send');
     Route::post('store/device-tokens', [DeviceController::class, 'storeDeviceToken'])->name('store.device.token');
     Route::get('device-tokens', [DeviceController::class, 'getDeviceTokens'])->name('device.tokens');
+    Route::post('delete/device-token', [DeviceController::class, 'deleteDeviceToken'])->name('delete.device.token');
+
 
 
     Route::post('general-setting-update', [AccessController::class, 'update'])->name('setting.update');

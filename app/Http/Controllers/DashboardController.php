@@ -47,6 +47,16 @@ class DashboardController extends Controller
            
             $data = [
                'userStats' => $user,
+               'stats' => [
+                    [
+                    'name' => 'Today Submitted',
+                    'count' => $totalTodaySubmittedSurveyCount
+                    ],
+                    [
+                        'name' => 'Monthly Submitted',
+                        'count' => $totalMonthlySubmittedSurveyCount
+                    ]
+                ],
                 'totalTodaySubmittedSurveyCount' => $totalTodaySubmittedSurveyCount,
                 'totalMonthlySubmittedSurveyCount' => $totalMonthlySubmittedSurveyCount
             ];

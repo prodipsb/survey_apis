@@ -466,15 +466,15 @@ class AccessController extends Controller
 
     public function userInformationWithPermission(Request $request)
     {
-       // dd($request->user_id);
-        $permissionData = [];
+
+        $permissions = [];
 
         $user = User::findOrFail($request->user_id);
 
         foreach ($user->roles as $role) {
-            array_push($permissionData, $role->permissions->pluck('name'));
+            $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
         }
-        $user->permission = $permissionData;
+        $user->permissions = $permissions;
         try {
             return $this->throwMessage(200, 'success', "User Information", $user);
         } catch (\Exception $e) {

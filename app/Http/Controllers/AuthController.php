@@ -96,6 +96,11 @@ class AuthController extends Controller
             return response()->json([
                 'token_type' => 'Bearer Token',
                 'access_token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'avatar' => $user->avatar
+                ]
                 ])
                 ->cookie('access_token', $token, 600);
 
