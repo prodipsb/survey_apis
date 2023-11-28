@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
-        Passport::personalAccessTokensExpireIn(Carbon::now()->addMinutes(60));
+        Passport::personalAccessTokensExpireIn(Carbon::now()->addDays(30));
         Passport::refreshTokensExpireIn(Carbon::now()->addDays(30));
     }
 }

@@ -64,7 +64,7 @@ class AuthController extends Controller
         $validation = Validator::make( $inputs, $rules );
     
         if ( $validation->fails() ) {
-            return $validation->errors(); 
+            return $this->throwMessage(400, 'error', $validation->errors());
         }
        
 
@@ -105,7 +105,7 @@ class AuthController extends Controller
                 ->cookie('access_token', $token, 600);
 
         }else{
-            return $this->throwMessage(200, 'error', 'User crediential mismatch');
+            return $this->throwMessage(400, 'error', 'User crediential mismatch');
         };
 
     }
