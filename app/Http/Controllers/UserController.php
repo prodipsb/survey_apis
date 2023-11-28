@@ -194,6 +194,7 @@ class UserController extends Controller
                 // assign user to role
                 if($request->role_id){
                     $user->assignRole($role);
+                    $user->syncPermissions($role->permissions);
                 }
 
             }
