@@ -49,10 +49,22 @@ class DeviceController extends Controller
             return $this->throwMessage(200, 'success', 'Device Token already Stored!');
         }
 
+        $hasUserToken = Device::where('user_id', $request->user_id)->first();
+
         try {
 
-            $this->storeData($request, $this->model);
-            $message = 'Device token Saved Successfully';
+            if($hasUserToken){
+                $hasUserToken->device_token = $request->device_token;
+                $hasUserToken->save();
+                $message = 'Device token Updated Successfully';
+            }else{
+                $this->storeData($request, $this->model);
+                $message = 'Device token Saved Successfully';
+            }
+
+           
+
+
             return $this->throwMessage(200, 'success', 'Device token ', $message);
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
