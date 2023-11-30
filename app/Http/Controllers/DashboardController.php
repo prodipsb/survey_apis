@@ -30,8 +30,14 @@ class DashboardController extends Controller
             $startMonth = Carbon::today()->startOfMonth()->format('Y-m-d H:i:s');
             $endMonth = Carbon::today()->endOfMonth()->format('Y-m-d H:i:s');
 
-            $totalTodaySubmittedSurveyCount = $listData1Clone->where('date', $today)->pluck('totalSurvey')->first();
-            $totalMonthlySubmittedSurveyCount = $listData->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+            if($request->user_id){
+                $totalTodaySubmittedSurveyCount = $listData1Clone->where('user_id', $request->user_id)->where('date', $today)->pluck('totalSurvey')->first();
+                $totalMonthlySubmittedSurveyCount = $listData->where('user_id', $request->user_id)->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+            }else{
+                $totalTodaySubmittedSurveyCount = $listData1Clone->where('date', $today)->pluck('totalSurvey')->first();
+                $totalMonthlySubmittedSurveyCount = $listData->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+            }
+            
 
              $roles = Role::whereNot('id', 1)->get();
 
