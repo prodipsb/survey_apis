@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller
 {
@@ -172,16 +173,25 @@ class UserController extends Controller
            // return $validation->errors(); 
         }
 
+        $role = Role::findOrFail($request->role_id);
+
 
         try {
 
             if(!empty($request->id)){
 
+                if($user->role_id !== $request->role_id){
+                    $user->roles()->detach();
+
+                    $user->assignRole($role);
+                    $user->syncPermissions($role->permissions);
+                }
+
                 $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['password', 'email', 'role', 'supervisor', 'report_to', 'permissions', 'roles'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
 
             }else{
 
-                $role = Role::findOrFail($request->role_id);
+                
                 $hashPassword = Hash::make($request->password);
 
                 $request->merge(['password' => $hashPassword]);
