@@ -33,13 +33,8 @@ class ReportController extends Controller
                     $query->whereFullText([
                         'binHolderName',
                         'binHolderMobile',
-                        'binHolderEmail',
                         'shopName',
-                        'brandName',
-                        'productName',
                         'surveySubmittedUserName',
-                        'surveySubmittedUserEmail',
-                        'surveySubmittedUserPhone'
                     ], $search);
                 });
             }
@@ -63,12 +58,7 @@ class ReportController extends Controller
             // if($request->search){
             //     $listData = $listData->where('name', 'like', '%'.$request->search.'%');
             // }
-            if($request->status){
-                    $listData = $listData->where('type', $request->status);
-            }
-            if($request->course){
-                $listData = $listData->where('division', $request->course);
-            }
+        
             
             if ($request->has('start_date') && $request->has('end_date')) {
                 $listData = $listData->whereBetween('created_at', [$request->start_date, $request->end_date]);

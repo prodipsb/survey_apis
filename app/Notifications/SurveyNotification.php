@@ -21,7 +21,7 @@ class SurveyNotification extends Notification
     public function __construct($survey)
     {
         $this->surveyId=$survey->id;
-        $this->username=$survey->binHolderName;
+        $this->username=$survey->surveySubmittedUserName;
 
         // $this->surveyId=$survey["survey_id"];
         // $this->username=$survey["user_name"];

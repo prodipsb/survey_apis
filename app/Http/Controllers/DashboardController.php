@@ -6,6 +6,7 @@ use App\Http\Traits\GlobalTraits;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
@@ -22,6 +23,8 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         try {
+
+           
 
             $listData = $this->getModel($this->model)::select(DB::raw('count(user_id) as totalSurvey'))->process();
             $listData1Clone = $listData->clone($listData);
