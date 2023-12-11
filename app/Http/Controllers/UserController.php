@@ -180,11 +180,15 @@ class UserController extends Controller
 
             if(!empty($request->id)){
 
-                if($user->role_id !== $request->role_id){
-                    $user->roles()->detach();
+               // return $this->throwMessage(200, 'success', ["user_role" => $user->role_id, "request_role" => $request->role_id]);
 
-                    $user->assignRole($role);
-                    $user->syncPermissions($role->permissions);
+                if($user->role_id !== (int)$request->role_id){
+                    $user->updateRoleAndPermissions($role);
+                    // $user->removeRoles();
+                    // // $user->roles()->detach();
+
+                    // $user->assignRole($role);
+                    // $user->syncPermissions($role->permissions);
                 }
 
                 $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['password', 'email', 'role', 'supervisor', 'report_to', 'permissions', 'roles'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);

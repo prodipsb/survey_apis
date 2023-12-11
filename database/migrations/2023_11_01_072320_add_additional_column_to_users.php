@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('longitude')->nullable();
             $table->string('latitude')->nullable();
-            $table->dateTime('date_of_joining')->nullable();
+            $table->date('date_of_joining')->nullable();
 
             $table->dateTime('last_login')->nullable();
             $table->dateTime('last_logout')->nullable();
