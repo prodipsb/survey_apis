@@ -17,22 +17,22 @@ class UserResource extends JsonResource
         // return parent::toArray($request);
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone'=> $this->phone,
-            'user_type' => $this->user_type,
-            'gender' => $this->gender,
-            'bio' => $this->bio,
-            'date_of_joining' => $this->date_of_joining,
-            'country' => $this->country,
-            'city' => $this->city,
-            'division' => $this->division,
-            'location' => $this->location,
-            'longitude' => $this->longitude,
-            'latitude' => $this->latitude,
-            'last_login' => $this->last_login,
-            'last_logout' => $this->last_logout,
-            'status' => $this->status
+            'name' => $this->name ?? '',
+            'email' => $this->email ?? '',
+            'phone'=> $this->phone ?? '',
+            'user_type' => $this->user_type ?? '',
+            'gender' => $this->gender ?? '',
+            'bio' => $this->bio ?? '',
+            'date_of_joining' => $this->date_of_joining ?? '',
+            'country' => $this->country ?? '',
+            'city' => $this->city ?? '',
+            'division' => $this->division ?? '',
+            'location' => $this->location ?? '',
+            'longitude' => $this->longitude ?? '',
+            'latitude' => $this->latitude ?? '',
+            'last_login' => $this->last_login ?? '',
+            'last_logout' => $this->last_logout ?? '',
+            'status' => $this->status ?? ''
 
         ];
     }

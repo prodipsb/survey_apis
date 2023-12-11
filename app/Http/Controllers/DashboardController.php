@@ -36,9 +36,11 @@ class DashboardController extends Controller
             if($request->user_id){
                 $totalTodaySubmittedSurveyCount = $listData1Clone->where('user_id', $request->user_id)->where('date', $today)->pluck('totalSurvey')->first();
                 $totalMonthlySubmittedSurveyCount = $listData->where('user_id', $request->user_id)->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+                $totalSubmittedSurveyCount = $listData->where('user_id', $request->user_id)->pluck('totalSurvey')->first();
             }else{
                 $totalTodaySubmittedSurveyCount = $listData1Clone->where('date', $today)->pluck('totalSurvey')->first();
                 $totalMonthlySubmittedSurveyCount = $listData->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+                $totalSubmittedSurveyCount = $listData->pluck('totalSurvey')->first();
             }
             
 
@@ -58,12 +60,16 @@ class DashboardController extends Controller
                'userStats' => $user,
                'stats' => [
                     [
-                    'name' => 'Today Submitted',
+                    'name' => 'Today Surveys',
                     'count' => $totalTodaySubmittedSurveyCount
                     ],
                     [
-                        'name' => 'Monthly Submitted',
+                        'name' => 'Monthly Surveys',
                         'count' => $totalMonthlySubmittedSurveyCount
+                    ],
+                    [
+                        'name' => 'Total Surveys',
+                        'count' => $totalSubmittedSurveyCount
                     ]
                 ],
                 'totalTodaySubmittedSurveyCount' => $totalTodaySubmittedSurveyCount,

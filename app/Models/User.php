@@ -102,10 +102,36 @@ class User extends Authenticatable
         }
     }
 
+    // public function removeRoles()
+    // {
+    //     $this->roles()->detach();
+    // }
+
+    public function updateRoleAndPermissions($role)
+    {
+        // Remove all existing roles
+       // $this->syncRoles([]);
+       $this->roles()->detach();
+
+
+        // Assign the new role
+         $this->assignRole($role);
+
+        // dd($role->permissions);
+
+        // // Sync the permissions for the new role
+        // $this->syncPermissions($role->permissions);
+    }
+
 
 
     public function role(){
         return $this->belongsTo(Role::class);
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
     }
 
     public function supervisor(){

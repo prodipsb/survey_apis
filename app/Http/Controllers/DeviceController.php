@@ -44,12 +44,15 @@ class DeviceController extends Controller
             return $this->throwMessage(422, 'error', $validation->errors()->first());
         }
 
-        $isExist = $this->checkIfExistDeviceToken($request->device_token);
-        if ($isExist) {
-            return $this->throwMessage(200, 'success', 'Device Token already Stored!');
-        }
+        // $isExist = $this->checkIfExistDeviceToken($request->device_token);
+        // if ($isExist) {
+        //     return $this->throwMessage(200, 'success', 'Device Token already Stored!');
+        // }
 
-        $hasUserToken = Device::where('user_id', $request->user_id)->first();
+        $hasUserToken = Device::where([
+            'user_id' => $request->user_id,
+            'device_token' => $request->device_token
+            ])->first();
 
         try {
 
