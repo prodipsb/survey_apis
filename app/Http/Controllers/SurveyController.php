@@ -135,7 +135,6 @@ class SurveyController extends Controller
 
         try {
 
-
             $request->merge(['user_id' => $this->getAuthID()]);
             $request->merge(['surveySubmittedUserName' => Auth::user()->name]);
             $request->merge(['surveySubmittedUserEmail' => Auth::user()->email]);
