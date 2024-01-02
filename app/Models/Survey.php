@@ -72,6 +72,7 @@ class Survey extends Model
             'surveillance',
             'mobileOperator',
             'operatorCoverage',
+            'weeklyHoliday',
             'shopPic',
             'binCertificate'
 
