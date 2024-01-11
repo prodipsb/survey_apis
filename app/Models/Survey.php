@@ -8,6 +8,7 @@ use App\Notifications\SurveyNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class Survey extends Model
 {
@@ -93,6 +94,8 @@ class Survey extends Model
 
     protected $dispatchesEvents = [ 'created' => SurveyNotificationEvent::class ];
 
+    protected $appends = ['supervisor', 'reportTo'];
+
 
   //   public static function boot() {
   //     parent::boot();
@@ -135,6 +138,26 @@ class Survey extends Model
 
       return $query->whereIn('role_id', $userProcessId);
 
+    }
+
+
+
+    public function role()
+    {
+      return  $this->belongsTo(Role::class, 'role_id');
+    }
+
+
+    public function getSupervisorAttribute()
+    {
+       $supervisor = User::findorFail($this->user->supervisor_user_id);
+       return $supervisor->name;
+    }
+
+    public function getReportToAttribute()
+    {
+      $reportingTo = User::findorFail($this->user->reporting_user_id);
+      return $reportingTo->name;
     }
 
     

@@ -61,7 +61,7 @@ class ReportController extends Controller
         
             
             if ($request->has('start_date') && $request->has('end_date')) {
-                $listData = $listData->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                $listData = $listData->whereBetween('date', [$request->start_date, $request->end_date]);
             }
 
            
@@ -71,11 +71,12 @@ class ReportController extends Controller
                 $fields = [
                     'id',
                     'date',
-                    'user_id',
-                    'role_id',
                     'surveySubmittedUserName',
                     'surveySubmittedUserEmail',
                     'surveySubmittedUserPhone',
+                    'role',
+                    'supervisor',
+                    'roportTo',
                     'binHolderName', 
                     'binHolderEmail',
                     'binHolderMobile',
@@ -103,13 +104,31 @@ class ReportController extends Controller
                     'vatParcent',
                     'sdPercent',
                     'priceIncludingVat',
-                    'priceExcludingVat'
+                    'priceExcludingVat',
+                    'weeklyHoliday',
 
                 ];
-                $listData = $listData->toArray($fields);
+                // $listData = $listData->toArray($fields);
+
+                  // Convert each resource to array
+                  $listDataArray = $listData->map(function ($resource) {
+                    return $resource->toArray(request());
+                });
+
+                // Extract only the specified fields
+                $listDataExport = [];
+                foreach ($listDataArray as $item) {
+                   
+                    $rowData = [];
+                    foreach ($fields as $field) {
+                        
+                        $rowData[] = $item[$field] ? $item[$field] : "null"; // Use empty string if the field is not present
+                    }
+                    $listDataExport[] = $rowData;
+                }
 
                 
-                return $this->csvExport($listData, $fields, '/uploads/reports');
+                return $this->csvExport($listDataExport, $fields, '/uploads/reports');
             }
             $listData = $listData->orderBy('created_at', 'desc');
             

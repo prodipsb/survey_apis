@@ -501,32 +501,69 @@ trait GlobalTraits
     // }
 
 
+    public function csvExport($data = [], $heading = [])
+{
 
-    public function csvExport($data =[], $heading = [])
-    {
-        $fileName = 'export_'.time().'.csv';
-        
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=".$fileName,
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0"
-        );
-        
-        $columns = $heading;
+    // dd($data);
 
-        $callback = function () use ($data, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
+    $fileName = 'export_' . time() . '.csv';
 
-            foreach ($data as $item) {
-                fputcsv($file, $item);
+    $headers = array(
+        "Content-type" => "text/csv",
+        "Content-Disposition" => "attachment; filename=" . $fileName,
+        "Pragma" => "no-cache",
+        "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+        "Expires" => "0"
+    );
+
+    $columns = $heading;
+
+    $callback = function () use ($data, $columns) {
+        $file = fopen('php://output', 'w');
+        fputcsv($file, $columns);
+
+        foreach ($data as $item) {
+           // dd($item);
+            // Check if the number of elements in $item matches the number of elements in $columns
+            if (count($item) !== count($columns)) {
+                // If not, fill in missing values with empty strings
+                $item = array_pad($item, count($columns), '');
             }
-            fclose($file);
-        };
-        return response()->stream($callback, 200, $headers);
-    }
+            fputcsv($file, $item);
+        }
+        fclose($file);
+    };
+    return response()->stream($callback, 200, $headers);
+}
+
+
+
+
+    // public function csvExport($data =[], $heading = [])
+    // {
+    //     $fileName = 'export_'.time().'.csv';
+        
+    //     $headers = array(
+    //         "Content-type" => "text/csv",
+    //         "Content-Disposition" => "attachment; filename=".$fileName,
+    //         "Pragma" => "no-cache",
+    //         "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+    //         "Expires" => "0"
+    //     );
+        
+    //     $columns = $heading;
+
+    //     $callback = function () use ($data, $columns) {
+    //         $file = fopen('php://output', 'w');
+    //         fputcsv($file, $columns);
+
+    //         foreach ($data as $item) {
+    //             fputcsv($file, $item);
+    //         }
+    //         fclose($file);
+    //     };
+    //     return response()->stream($callback, 200, $headers);
+    // }
 
 
     // public function applyFilter($request, $userQuery)

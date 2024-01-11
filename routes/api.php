@@ -47,6 +47,8 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::get('role/users', [AccessController::class, 'showUsersByRole']);
     Route::get('users/exclude-role', [AccessController::class, 'getExcludeRoleUsers']);
     Route::post('user/role-remove', [AccessController::class, 'removeRoleFromUser']);
+    Route::get('roles/upper-roles', [AccessController::class, 'getUpperRoles']);
+
 
     //========= Permissions Routes ==========
 

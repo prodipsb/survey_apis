@@ -48,31 +48,45 @@ class UserController extends Controller
 
             if ($request->has('export') && $request->get('export') == true) {
                 $listData = UserResource::collection($listData->get());
+              //  dd($listData);
                 $fields = [
                     'id',
                     'name',
-                    'email',
                     'phone',
-                    'user_type',
-                    'gender',
-                    'bio',
-                    'date_of_joining',
-                    'country',
+                    'email',
+                    'role',
+                    'supervisor',
+                    'reporting_to',
+                    'location',
                     'city',
                     'division',
-                    'location',
-                    'longitude',
-                    'latitude',
                     'last_login',
                     'last_logout',
+                    'date_of_joining',
                     'status'
 
                 ];
-                $listData = $listData->toArray($fields);
+              //  $listData = $listData->toArray($fields);
 
-                
-             //   dd($listData);
-                return $this->csvExport($listData, $fields);
+
+                 // Convert each resource to array
+                $listDataArray = $listData->map(function ($resource) {
+                    return $resource->toArray(request());
+                });
+
+                // Extract only the specified fields
+                $listDataExport = [];
+                foreach ($listDataArray as $item) {
+                   
+                    $rowData = [];
+                    foreach ($fields as $field) {
+                        
+                        $rowData[] = $item[$field] ? $item[$field] : "null"; // Use empty string if the field is not present
+                    }
+                    $listDataExport[] = $rowData;
+                }
+
+                return $this->csvExport($listDataExport, $fields);
             }
             // if($request->search){
             //     $listData = $listData->where('name', 'like', '%'.$request->search.'%');
@@ -84,7 +98,7 @@ class UserController extends Controller
             $listData = $listData->paginate($this->limit);
             //return CourseResource::collection($listData);
 
-            return $this->throwMessage(200, 'success', 'All the list of Courses ', $listData);
+            return $this->throwMessage(200, 'success', 'List of Users ', $listData);
 
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
