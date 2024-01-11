@@ -17,6 +17,7 @@ return new class extends Migration
             
             $table->engine = 'InnoDB';
             $table->unsignedBigInteger('role_id');
+            $table->unsignedBigInteger('employee_id')->nullable();
             $table->unsignedBigInteger('supervisor_id')->nullable();
             $table->unsignedBigInteger('reporting_role_id')->nullable();
             $table->unsignedBigInteger('supervisor_user_id')->nullable();
