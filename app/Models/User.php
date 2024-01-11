@@ -34,6 +34,8 @@ class User extends Authenticatable
         'user_type',
         'gender',
         'reporting_role_id',
+        'supervisor_user_id',
+        'reporting_user_id',
         'bio',
         'bin_no',
         'date_of_joining',
@@ -135,11 +137,13 @@ class User extends Authenticatable
     }
 
     public function supervisor(){
-        return $this->belongsTo(Role::class, 'supervisor_id');
+        return $this->belongsTo(User::class, 'supervisor_user_id');
+        // return $this->belongsTo(Role::class, 'supervisor_id');
     }
 
     public function reportTo(){
-        return $this->belongsTo(Role::class, 'reporting_role_id');
+        return $this->belongsTo(User::class, 'reporting_user_id');
+        // return $this->belongsTo(Role::class, 'reporting_role_id');
     }
 
     public function permissions(){

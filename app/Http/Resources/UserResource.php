@@ -18,20 +18,17 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name ?? '',
-            'email' => $this->email ?? '',
             'phone'=> $this->phone ?? '',
-            'user_type' => $this->user_type ?? '',
-            'gender' => $this->gender ?? '',
-            'bio' => $this->bio ?? '',
-            'date_of_joining' => $this->date_of_joining ?? '',
-            'country' => $this->country ?? '',
+            'email' => $this->email ?? '',
+            'role' => $this->role->name ?? '',
+            'supervisor' => $this->supervisor->name ?? '',
+            'reporting_to' => $this->reportTo->name ?? '',
+            'location' => $this->location ?? '',
             'city' => $this->city ?? '',
             'division' => $this->division ?? '',
-            'location' => $this->location ?? '',
-            'longitude' => $this->longitude ?? '',
-            'latitude' => $this->latitude ?? '',
             'last_login' => $this->last_login ?? '',
             'last_logout' => $this->last_logout ?? '',
+            'date_of_joining' => $this->date_of_joining ?? '',
             'status' => $this->status ?? ''
 
         ];

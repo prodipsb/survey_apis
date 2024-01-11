@@ -572,14 +572,14 @@ class AccessController extends Controller
     }
 
     public function showUsersByRole(Request $request)
-    {
+    {        
         $isSuper = $this->superAdminCheck();
         if (!$isSuper) {
             return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
         }
         $isExist = $this->checkIfExistRole($request->id);
         if (!$isExist) {
-            return $this->throwMessage(404, 'error', 'Role is not exist!');
+            return $this->throwMessage(404, 'error', $request->id);
         }
 
 
@@ -588,6 +588,8 @@ class AccessController extends Controller
             $data = Role::where('id', $request->id)->pluck('name');
             $user = User::query();
             $users = $user->role($data[0]);
+          //  dd($users->get());
+            return $this->throwMessage(200, 'success', "Role information", $users->get());
 
             if($request->search){
                 $users = $users->select('id', 'name')->where('name', 'like', '%'.$request->search.'%');
@@ -653,7 +655,29 @@ class AccessController extends Controller
         }
     }
 
-    
+
+    public function getUpperRoles(Request $request)
+    {
+
+        $isSuper = $this->superAdminCheck();
+        if (!$isSuper) {
+            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+        }
+        $isExist = $this->checkIfExistRole($request->role_id);
+        if (!$isExist) {
+            return $this->throwMessage(404, 'error', 'Role is not exist!');
+          // $roles = Role::all();
+        }
+
+        try {
+
+        $roles = Role::where('id', '>', $request->role_id)->get();
+        return $this->throwMessage(200, 'success', "Role List", $roles);
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
+    }
 
 
 

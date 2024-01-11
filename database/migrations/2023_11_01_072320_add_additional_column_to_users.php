@@ -19,6 +19,8 @@ return new class extends Migration
             $table->unsignedBigInteger('role_id');
             $table->unsignedBigInteger('supervisor_id')->nullable();
             $table->unsignedBigInteger('reporting_role_id')->nullable();
+            $table->unsignedBigInteger('supervisor_user_id')->nullable();
+            $table->unsignedBigInteger('reporting_user_id')->nullable();
             $table->string('phone')->nullable();
             $table->string('avatar')->nullable();
             $table->string('user_type')->nullable();

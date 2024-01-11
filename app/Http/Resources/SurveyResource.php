@@ -19,14 +19,16 @@ class SurveyResource extends JsonResource
         return [
             'id'=> $this->id,
             'date'=> $this->date,
-            'user_id'=> $this->user_id,
-            'role_id'=> $this->role_id,
             'surveySubmittedUserName' => $this->surveySubmittedUserName,
             'surveySubmittedUserEmail' => $this->surveySubmittedUserEmail,
             'surveySubmittedUserPhone' => $this->surveySubmittedUserPhone,
+            'role' => $this->role->name,
+            'supervisor' => $this->supervisor,
+            'roportTo' => $this->reportTo,
             'binHolderName' => $this->binHolderName,
             'binHolderEmail' => $this->binHolderEmail,
             'binHolderMobile' => $this->binHolderMobile,
+            'binNumber' => $this->binNumber,
             'division' => $this->division,
             'subDivision' => $this->subDivision,
             'circle' => $this->circle,
@@ -67,6 +69,7 @@ class SurveyResource extends JsonResource
             'operatorCoverage' => $this->operatorCoverage,
             'shopPic' => $this->shopPic,
             'binCertificate' => $this->binCertificate,
+            'weeklyHoliday' => $this->weeklyHoliday,
             'serveyItemList' => $this->surveyItems,
         ];
         
