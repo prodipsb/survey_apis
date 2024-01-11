@@ -122,21 +122,8 @@ class Survey extends Model
     public function scopeProcess($query)
     {
 
-      if(Auth::user()->role_id = 1){
-        $userProcessId = [1,2,3,4,5];
-      }elseif(Auth::user()->role_id = 2){
-        $userProcessId = [2,3,4,5];
-      }elseif(Auth::user()->role_id = 3){
-        $userProcessId = [3,4,5];
-      }elseif(Auth::user()->role_id = 4){
-        $userProcessId = [4,5];
-      }elseif(Auth::user()->role_id = 5){
-        $userProcessId = [5];
-      }
-
-     // dd($query->whereIn('role_id', $userProcessId)->get());
-
-      return $query->whereIn('role_id', $userProcessId);
+      $roles = Role::where('id', '>=', 13)->pluck('id');
+      return $query->whereIn('role_id', $roles->toArray());
 
     }
 
@@ -150,14 +137,14 @@ class Survey extends Model
 
     public function getSupervisorAttribute()
     {
-       $supervisor = User::findorFail($this->user->supervisor_user_id);
-       return $supervisor->name;
+       $supervisor = User::find($this->user->supervisor_user_id);
+       return $supervisor?->name;
     }
 
     public function getReportToAttribute()
     {
-      $reportingTo = User::findorFail($this->user->reporting_user_id);
-      return $reportingTo->name;
+      $reportingTo = User::find($this->user->reporting_user_id);
+      return $reportingTo?->name;
     }
 
     

@@ -132,8 +132,8 @@ class ReportController extends Controller
             }
             $listData = $listData->orderBy('created_at', 'desc');
             
-            $listData = $listData->paginate($this->limit);
-           // dd($listData);
+	    	$listData = $listData->paginate($this->limit);
+
             return SurveyResource::collection($listData);
 
         } catch (\Exception $e) {
