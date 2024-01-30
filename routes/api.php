@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SurveyController;
@@ -48,6 +49,7 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::get('users/exclude-role', [AccessController::class, 'getExcludeRoleUsers']);
     Route::post('user/role-remove', [AccessController::class, 'removeRoleFromUser']);
     Route::get('roles/upper-roles', [AccessController::class, 'getUpperRoles']);
+    Route::get('role-devices', [AccessController::class, 'getRoleDevices']);
 
 
     //========= Permissions Routes ==========
@@ -72,6 +74,12 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::get('profile', [UserController::class, 'userProfile'])->name('user.profile');
     Route::post('password-update', [UserController::class, 'passwordUpdate'])->name('password.update');
     Route::post('avatar-update', [UserController::class, 'userAvatarUpdate'])->name('user.avatar');
+    Route::post('user-status', [UserController::class, 'updateUserStatus'])->name('user.status');
+
+    Route::post('user-import', [UserController::class, 'importUser']);
+
+    // $router->get('/demo-file-export', 'ReportController@demoFileExport');
+
 
 
     //========= Survey Routes ==========
@@ -110,10 +118,17 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::post('notification-delete', [NotificationController::class, 'destroy'])->name('notification.destroy');
     Route::post('notifications-delete', [NotificationController::class, 'allDestroy'])->name('notification.all.destroy');
 
-    Route::post('push-notification/send', [NotificationController::class, 'pushNotificationSend'])->name('push.notification.send');
+    // Route::post('push-notification/send', [NotificationController::class, 'pushNotificationSend'])->name('push.notification.send');
     Route::post('store/device-tokens', [DeviceController::class, 'storeDeviceToken'])->name('store.device.token');
     Route::get('device-tokens', [DeviceController::class, 'getDeviceTokens'])->name('device.tokens');
     Route::post('delete/device-token', [DeviceController::class, 'deleteDeviceToken'])->name('delete.device.token');
+    
+
+    //========= Push Notification Routes ==========
+    Route::get('push-notifications', [PushNotificationController::class, 'index'])->name('push.notifications');
+    Route::post('push-notification-create', [PushNotificationController::class, 'pushNotificationSend'])->name('push.notification.send');
+    Route::post('push-notification-delete', [PushNotificationController::class, 'destroy'])->name('push.notification.destroy');
+
 
 
 

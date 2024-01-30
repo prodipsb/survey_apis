@@ -13,13 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('devices', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('role_id')->nullable(); 
-            $table->unsignedBigInteger('user_id'); 
-            $table->string('user')->nullable();
-            $table->text('device_token'); 
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->dateTime('last_login_attempted_at')->default(0)->after('last_logout');
+            $table->integer('login_attempts')->default(0)->after('last_logout');
         });
     }
 
@@ -30,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('devices');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };

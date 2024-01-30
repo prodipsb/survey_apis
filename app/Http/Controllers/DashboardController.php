@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use App\Models\Role as RoleModel;
 
 class DashboardController extends Controller
 {
@@ -42,22 +43,36 @@ class DashboardController extends Controller
                 $totalMonthlySubmittedSurveyCount = $listData->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
                 $totalSubmittedSurveyCount = $listData->pluck('totalSurvey')->first();
             }
+
+           
+
+            if(Auth::user()->user_type == "admin"){
+                $userStats = RoleModel::withCount('user')->get();
+
+            }else{
+                $userStats = [];
+
+            }
+
+          
+
+            // return $this->throwMessage(200, 'success', 'dashboard', $rolesWithUserCount);
             
 
-             $roles = Role::whereNot('id', 1)->get();
+            //  $roles = Role::whereNot('id', 1)->get();
 
-             foreach($roles as $role){
-                $count = User::where('role_id', $role->id)->count();
-                $userData = [
-                    'name' => $role->name, 'count' => $count
-                ];
+            //  foreach($roles as $role){
+            //     $count = User::where('role_id', $role->id)->count();
+            //     $userData = [
+            //         'name' => $role->name, 'count' => $count
+            //     ];
 
-                $user[] = $userData;
-             }
+            //     $user[] = $userData;
+            //  }
 
            
             $data = [
-               'userStats' => $user,
+               'userStats' => $userStats,
                'stats' => [
                     [
                     'name' => 'Today Surveys',

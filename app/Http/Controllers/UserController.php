@@ -7,11 +7,13 @@ use App\Http\Traits\GlobalTraits;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class UserController extends Controller
 {
@@ -28,7 +30,7 @@ class UserController extends Controller
 
             $listData = new User();
            
-            $listData = $listData->with(['role', 'supervisor', 'reportTo']);
+            $listData = $listData->with(['role', 'supervisor', 'supervisorRole']);
             
             if ($request->has('start_date') && $request->has('end_date')) {
                 $listData = $listData->whereBetween('date_of_joining', [$request->start_date, $request->end_date]);
@@ -39,9 +41,7 @@ class UserController extends Controller
                    $query->whereFullText([
                     'name',
                     'phone',
-                    'email',
-                    'user_type',
-                    'location',
+                    'email'
                    ], $search);
                });
            }
@@ -50,21 +50,22 @@ class UserController extends Controller
                 $listData = UserResource::collection($listData->get());
               //  dd($listData);
                 $fields = [
-                    'id',
+                    'employee_id',
                     'name',
-                    'phone',
                     'email',
+                    'phone',
                     'role',
                     'supervisor',
-                    'reporting_to',
-                    'location',
-                    'city',
-                    'division',
-                    'last_login',
-                    'last_logout',
+                    'supervisor_name',
+                    'gender',
                     'date_of_joining',
+                    'country',
+                    'zone',
+                    'commissionerate',
+                    'division',
+                    'circle',
+                    'address',
                     'status'
-
                 ];
               //  $listData = $listData->toArray($fields);
 
@@ -195,23 +196,26 @@ class UserController extends Controller
             if(!empty($request->id)){
 
                // return $this->throwMessage(200, 'success', ["user_role" => $user->role_id, "request_role" => $request->role_id]);
-
                 if($user->role_id !== (int)$request->role_id){
                     $user->updateRoleAndPermissions($role);
                     // $user->removeRoles();
                     // // $user->roles()->detach();
-
                     // $user->assignRole($role);
                     // $user->syncPermissions($role->permissions);
                 }
 
-                $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['password', 'email', 'role', 'supervisor', 'report_to', 'permissions', 'roles'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
+
+                if($request->password){
+                    $hashPassword = Hash::make($request->password);
+                    $request->merge(['password' => $hashPassword]);
+                }
+
+                $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['email', 'role', 'supervisor', 'supervisor_role', 'permissions', 'roles'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
 
             }else{
 
                 
                 $hashPassword = Hash::make($request->password);
-
                 $request->merge(['password' => $hashPassword]);
                 $request->merge(['created_by' => $this->getAuthID()]);
                 $request->merge(['country' => 'Bangladesh']);
@@ -293,6 +297,29 @@ class UserController extends Controller
     }
 
 
+    public function updateUserStatus(Request $request){
+
+        try {
+
+            $user = User::findOrFail($request->id);
+            if($user->status == "Active"){
+                $user->status = "Inactive";
+            }else{
+                $user->status = "Active";
+            }
+
+            $user->save();
+            return $this->throwMessage(200, 'success','user status updated', $user);
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', 'User not found');
+        }
+            
+
+    }
+
+
+
     public function passwordUpdate(Request $request){
 
         $authId = Auth::id();
@@ -328,6 +355,145 @@ class UserController extends Controller
 
 
     }
+
+    public function importUser(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'upload_file' => 'required|mimes:csv,txt,xls,xlsx'
+        ]);
+    
+        if ($validator->fails()) {
+            return $this->throwMessage(400, 'error', $validator->errors()->first());
+        }
+    
+        try {
+            // Get the file path
+            $inputFileName = $request->file('upload_file')->getRealPath();
+    
+            // Load the spreadsheet
+            $spreadsheet = IOFactory::load($inputFileName);
+    
+            // Get the active sheet
+            $sheet = $spreadsheet->getActiveSheet();
+    
+            // Get sheet data starting from the 2nd row
+            $sheetData = $sheet->rangeToArray(
+                'A2:' . $sheet->getHighestColumn() . $sheet->getHighestRow(),
+                null,
+                true,
+                true,
+                true
+            );
+
+           // return $this->throwMessage(200, 'success', "Import file successfully", $sheetData);
+    
+            // Upload user bulk data from CSV
+            $this->uploadUserBulkDataFromCSV($sheetData);
+    
+            return $this->throwMessage(200, 'success', "Import file successfully");
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
+    }
+
+
+    public function uploadUserBulkDataFromCSV($data)
+    {
+
+        foreach ($data as $key => $row) {
+                $userRole = Role::findByName($row['E']);
+                $supervisorRole = Role::findByName($row['F']);
+                $supervisor = User::where('name', $row['G'])->first();
+                $user = User::create([
+                    'employee_id' => $row['A'],
+                    'name' => $row['B'],
+                    'email' => $row['C'],
+                    'phone' => $row['D'],
+                    'role_id' => $userRole?->id,
+                    'supervisor_id' => $supervisorRole?->id,
+                    'supervisor_name' => $supervisor?->name,
+                    'gender' => $row['H'],
+                    'bio' => $row['I'],
+                    'date_of_joining' => date('Y-m-d', strtotime($row['J'])),
+                    'country' => $row['K'],
+                    'zone' => $row['L'],
+                    'commissionerate' => $row['M'],
+                    'division' => $row['N'],
+                    'circle' => $row['O'],
+                    'address' => $row['P'],
+                    'supervisor_user_id' => $supervisor?->id ?? "",
+                    'user_type' => str::slug($row['E'], '_'),
+                    'created_by' => 1,
+                    'status' => "Active",
+                    'password' => Hash::make(123456),
+                ]);
+
+
+                if ($userRole) {
+                    // Retrieve the role object from the relationship
+                    $role = $userRole->first();
+
+                   
+                
+                    if ($role) {
+                        // Assign the role to the user
+                        $user->assignRole($role);
+                
+                        // Sync permissions associated with the role
+                       // $user->syncPermissions($role->permissions()->pluck('name')->toArray());
+                    } else {
+                        return $this->throwMessage(404, 'error', 'Role not found');
+                    }
+                } else {
+                    return $this->throwMessage(404, 'error', 'User role not specified');
+                }
+
+
+                
+
+            //     // $role = $userRole->first(); // Retrieve the role object from the relationship
+            //     // if ($role) {
+            //     //     $user->assignRole($role);
+            //     //     $user->syncPermissions($role->permissions);
+            //     // } 
+
+
+            // }
+
+            //return $this->throwMessage(200, 'success', "Import file successfully");
+
+            // if ($supervisor && ($user->id != $supervisor->id)) {
+            //     Supervisor::create([
+            //         'user_id' => $user->id,
+            //         'supervisor_id' => $supervisor->id,
+            //     ]);
+            // }
+            // foreach ($processes as  $process_id) {
+            //     $process = AgentProcess::where('user_id', $user->id)->where('process_id', $process_id)->exists();
+            //     if (!$process) {
+            //         $user->agentProcess()->create(['process_id' => $process_id]);
+            //     }
+            // }
+        // }
+    }
+
+    //return $this->throwMessage(200, 'success', "Import file successfully");
+    return true;
+
+}
+
+
+    // public function demoFileExport(Request $request)
+    // {
+    //     if ($request->for == 'user_group_bulk') {
+    //         $data = User::orderBy('id', 'desc')->where('status', 'active')->take(5);
+    //         $listData = DemoFileResource::collection($data->get());
+    //         $fields = ['username', 'name', 'phone', 'email', 'gender', 'user_type', 'user_group', 'supervisor_username', 'status'];
+    //         $listData = $listData->toArray($fields);
+    //         return $this->csvExport($listData, $fields);
+    //     }
+    // }
 
 
     public function deleteUser(Request $request)

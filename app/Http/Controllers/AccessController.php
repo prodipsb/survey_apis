@@ -155,6 +155,31 @@ class AccessController extends Controller
       }
 
 
+      public function getRoleDevices()
+      {
+
+        // dd('sss');
+
+
+          $isSuper = $this->superAdminCheck();
+          if (!$isSuper) {
+              return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+          }
+
+          $role = Role::all();
+          dd($role);
+
+          foreach ($users as $user) {
+              $data = User::find($user);
+              $data->assignRole($role);
+          }
+
+          return $this->throwMessage(200, 'success', 'Role assign successful');
+      }
+
+      
+
+
 
     public function removeRoleFromUser(Request $request)
     {
@@ -585,11 +610,21 @@ class AccessController extends Controller
 
         try {
 
-            $data = Role::where('id', $request->id)->pluck('name');
+           // Retrieve the role name based on the ID from the request
+            $roleName = Role::where('id', $request->id)->value('name');
             $user = User::query();
-            $users = $user->role($data[0]);
-          //  dd($users->get());
-            return $this->throwMessage(200, 'success', "Role information", $users->get());
+            $users = $user->role($roleName);
+            // return $this->throwMessage(200, 'success', "Role information", $users->get());
+
+            // Retrieve the role name based on the ID from the request
+        //     $roleName = Role::where('id', $request->id)->value('name');
+        //     // Query users with the same role name
+        //     $usersWithSameRole = User::whereHas('roles', function ($query) use ($roleName) {
+        //         $query->where('name', $roleName);
+        //     })->get();
+
+        //   //  dd($users->get());
+        //     return $this->throwMessage(200, 'success', "Role information", $usersWithSameRole);
 
             if($request->search){
                 $users = $users->select('id', 'name')->where('name', 'like', '%'.$request->search.'%');

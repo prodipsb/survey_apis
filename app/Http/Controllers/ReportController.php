@@ -81,7 +81,6 @@ class ReportController extends Controller
                     'binHolderEmail',
                     'binHolderMobile',
                     'division',
-                    'subDivision',
                     'circle',
                     'shopName',
                     'brandname',

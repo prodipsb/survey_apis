@@ -34,20 +34,21 @@ class User extends Authenticatable
         'supervisor_id',
         'user_type',
         'gender',
-        'reporting_role_id',
         'supervisor_user_id',
-        'reporting_user_id',
         'bio',
-        'bin_no',
         'date_of_joining',
         'country',
-        'city',
+        'zone',
+        'commissionerate',
         'division',
-        'location',
+        'circle',
+        'address',
         'longitude',
         'latitude',
         'last_login',
         'last_logout',
+        'login_attempts',
+        'last_login_attempted_at',
         'created_by',
         'updated_by',
         'status'
@@ -81,7 +82,6 @@ class User extends Authenticatable
         'phone',
         'email',
         'user_type',
-        'location'
     ];
 
     
@@ -129,12 +129,17 @@ class User extends Authenticatable
 
 
     public function role(){
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     public function roles()
     {
         return $this->belongsToMany(Role::class);
+    }
+
+
+    public function supervisorRole(){
+        return $this->belongsTo(Role::class, 'supervisor_id');
     }
 
     public function supervisor(){
