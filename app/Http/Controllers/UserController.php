@@ -47,8 +47,8 @@ class UserController extends Controller
            }
 
             if ($request->has('export') && $request->get('export') == true) {
+                // dd($listData->get());
                 $listData = UserResource::collection($listData->get());
-              //  dd($listData);
                 $fields = [
                     'employee_id',
                     'name',
@@ -74,6 +74,7 @@ class UserController extends Controller
                 $listDataArray = $listData->map(function ($resource) {
                     return $resource->toArray(request());
                 });
+
 
                 // Extract only the specified fields
                 $listDataExport = [];
@@ -401,8 +402,10 @@ class UserController extends Controller
     public function uploadUserBulkDataFromCSV($data)
     {
 
+
         foreach ($data as $key => $row) {
                 $userRole = Role::findByName($row['E']);
+               // dd($userRole);
                 $supervisorRole = Role::findByName($row['F']);
                 $supervisor = User::where('name', $row['G'])->first();
                 $user = User::create([
@@ -429,25 +432,35 @@ class UserController extends Controller
                     'password' => Hash::make(123456),
                 ]);
 
+                // dd($user);
 
-                if ($userRole) {
+                // return $this->throwMessage(404, 'error', 'Role not found', $user);
+
+               // dd('dfdf', $userRole);
+
+              //  if ($userRole) {
+                   // dd('aa', $userRole);
                     // Retrieve the role object from the relationship
-                    $role = $userRole->first();
+                  //  $role = $userRole->first();
+                  //  dd($role);
 
+                  //  return $this->throwMessage(404, 'error', 'Role not found', $role);
                    
                 
-                    if ($role) {
+                    if ($userRole) {
                         // Assign the role to the user
-                        $user->assignRole($role);
+                        $user->assignRole($userRole->name);
+
+                       // dd($userRole->permissions->pluck('name')->toArray());
                 
                         // Sync permissions associated with the role
-                       // $user->syncPermissions($role->permissions()->pluck('name')->toArray());
+                       //  $user->syncPermissions($userRole->permissions()->pluck('name')->toArray());
                     } else {
                         return $this->throwMessage(404, 'error', 'Role not found');
                     }
-                } else {
-                    return $this->throwMessage(404, 'error', 'User role not specified');
-                }
+                // } else {
+                //     return $this->throwMessage(404, 'error', 'User role not specified');
+                // }
 
 
                 

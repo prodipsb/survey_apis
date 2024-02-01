@@ -111,6 +111,7 @@ class AccessController extends Controller
             }
 
 
+            $listData = $listData->latest();
             if($request->pagination){
                 $listData = $listData->paginate($this->limit);
             }else{
@@ -167,7 +168,6 @@ class AccessController extends Controller
           }
 
           $role = Role::all();
-          dd($role);
 
           foreach ($users as $user) {
               $data = User::find($user);
@@ -614,21 +614,18 @@ class AccessController extends Controller
             $roleName = Role::where('id', $request->id)->value('name');
             $user = User::query();
             $users = $user->role($roleName);
-            // return $this->throwMessage(200, 'success', "Role information", $users->get());
 
-            // Retrieve the role name based on the ID from the request
         //     $roleName = Role::where('id', $request->id)->value('name');
         //     // Query users with the same role name
         //     $usersWithSameRole = User::whereHas('roles', function ($query) use ($roleName) {
         //         $query->where('name', $roleName);
         //     })->get();
 
-        //   //  dd($users->get());
-        //     return $this->throwMessage(200, 'success', "Role information", $usersWithSameRole);
 
-            if($request->search){
+            if($request->search != 'undefined'){
                 $users = $users->select('id', 'name')->where('name', 'like', '%'.$request->search.'%');
             }
+
                         
             if($request->pagination){
                 $users = $users->paginate($this->limit);
@@ -701,13 +698,15 @@ class AccessController extends Controller
         $isExist = $this->checkIfExistRole($request->role_id);
         if (!$isExist) {
             return $this->throwMessage(404, 'error', 'Role is not exist!');
-          // $roles = Role::all();
         }
 
         try {
 
+        $rolesWithId1 = Role::where('id', 1)->get();
         $roles = Role::where('id', '>', $request->role_id)->get();
-        return $this->throwMessage(200, 'success', "Role List", $roles);
+        $mergedRoles = collect($rolesWithId1->merge($roles))->sortByDesc('created_at')->values()->all();
+
+        return $this->throwMessage(200, 'success', "Role List", $mergedRoles);
 
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
