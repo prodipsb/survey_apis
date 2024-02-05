@@ -211,7 +211,7 @@ class UserController extends Controller
                     $request->merge(['password' => $hashPassword]);
                 }
 
-                $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['email', 'role', 'supervisor', 'supervisor_role', 'permissions', 'roles'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
+                $user = $this->updateData($request, $request->id, $this->model, $exceptFieldsArray = ['role', 'supervisor', 'supervisor_role', 'permissions', 'roles'], $fileUpload = true, $fileInputName = ['avatar'], $path = $this->uploadDir);
 
             }else{
 
@@ -347,7 +347,7 @@ class UserController extends Controller
 
             $this->updateData($request, $authId, $this->model, $exceptFieldsArray = ['password_confirmation'], $fileUpload = false);
 
-            return $this->throwMessage(200, 'success','user password', 'User Password Updated Succesfully!');
+            return $this->throwMessage(200, 'success','User Password Updated Succesfully!');
 
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', 'User not found');

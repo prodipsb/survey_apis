@@ -45,21 +45,18 @@ class AuthController extends Controller
     public function authlogin(Request $request)
     {
 
-        $inputs = $request->except(['login_mode']);
-       // dd($inputs, $request->login_mode);
+       $inputs = $request->except(['login_mode']);
 
-        $rules = [
-            'email'    => 'required|email',
-            'password' => [
-                'required',
-                'string',
-                'min:6',             // must be at least 10 characters in length
-                //'regex:/[a-z]/',      // must contain at least one lowercase letter
-               // 'regex:/[A-Z]/',      // must contain at least one uppercase letter
-               // 'regex:/[0-9]/',      // must contain at least one digit
-               // 'regex:/[@$!%*#?&]/', // must contain a special character
-            ],
-        ];
+       $rules = [
+        'email' => [
+            'required'
+        ],
+        'password' => [
+            'required',
+            'string',
+            'min:6', // must be at least 6 characters in length
+        ],
+    ];
     
         $validation = Validator::make( $inputs, $rules );
     
@@ -67,10 +64,20 @@ class AuthController extends Controller
             return $this->throwMessage(400, 'error', $validation->errors());
         }
        
-
+       
          Auth::shouldUse('web');
 
-         $auth = User::where('email', $request->email)->first();
+         if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+            $auth = User::where('email', $request->email)->first();
+         }else{
+            $inputs['employee_id'] = $inputs['email'];
+            unset($inputs['email']);
+            $auth = User::where('employee_id', $request->email)->first();
+         }
+
+         if(!$auth){
+            return $this->throwMessage(400, 'error', "User not found!");
+         }
 
          if($auth->login_attempts == 3 && $auth->last_login_attempted_at >= Carbon::now('Asia/Dhaka')->subMinutes(2)){
             return $this->throwMessage(400, 'error', "You have been blocked for \n2 minutes");
@@ -85,12 +92,9 @@ class AuthController extends Controller
 
             $auth = Auth::user();
             
-            // return $this->throwMessage(401, 'error', "Permission denied, You don't have permission", $auth->roles[0]->hasPermissionTo($request->login_mode));
-
             if(!$auth->roles->isEmpty() && $auth->roles[0]->hasPermissionTo($request->login_mode) == false){
                 return $this->throwMessage(401, 'error', "Permission denied, You don't have {$request->login_mode} permission");
             }
-
           
             $token = $auth->createToken('authToken')->accessToken;
             $refreshToken = $auth->createToken('refreshToken')->accessToken;
@@ -100,7 +104,7 @@ class AuthController extends Controller
 
             $user = User::findOrFail(Auth::id());;
             $user->last_login = Carbon::now();
-            $user->status = 'active';
+            $user->status = 'Active';
             $user->save();
     
 
@@ -117,7 +121,6 @@ class AuthController extends Controller
 
         }else {
            
-
             if ($auth->login_attempts <= 2) {
                  $auth->increment('login_attempts');
                  $auth->last_login_attempted_at = now('Asia/Dhaka');

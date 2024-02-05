@@ -17,7 +17,7 @@ return new class extends Migration
             
             $table->engine = 'InnoDB';
             $table->unsignedBigInteger('role_id');
-            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->unsignedBigInteger('employee_id')->unique();
             $table->unsignedBigInteger('supervisor_id')->nullable();
             $table->unsignedBigInteger('reporting_role_id')->nullable();
             $table->unsignedBigInteger('supervisor_user_id')->nullable();
@@ -43,7 +43,7 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->string('status')->nullable();
 
-            $table->index(['name', 'phone', 'email', 'user_type', 'location'], 'fulltext_index');
+            $table->index(['name', 'phone', 'email'], 'fulltext_index');
 
           //  $table->fullText(['name', 'phone', 'user_type', 'location']); // adding full-text search indexes
 
