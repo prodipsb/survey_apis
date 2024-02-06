@@ -23,8 +23,7 @@ class ReportController extends Controller
     {
         try {
             $data = [];
-            // $listData = Survey::process();
-            $listData = Survey::where('user_id', auth()->user()->id);
+            $listData = Survey::process();
             $listData = $listData->with('surveyItems');
 
 

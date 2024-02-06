@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dateTime('last_login_attempted_at')->default(0)->after('last_logout');
+            $table->dateTime('last_login_attempted_at')->nullable()->after('last_logout');
             $table->integer('login_attempts')->default(0)->after('last_logout');
         });
     }

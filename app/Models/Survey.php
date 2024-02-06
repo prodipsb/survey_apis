@@ -122,9 +122,17 @@ class Survey extends Model
     public function scopeProcess($query)
     {
 
-      $roles = Role::where('id', '>=', 13)->pluck('id');
-      return $query->whereIn('role_id', $roles->toArray());
+      if(auth()->user()->user_type == 'admin'){
+        return $query;
+        
+      }else{
 
+        $userIds =  User::where('supervisor_user_id', auth()->user()->id)->pluck('id')->toArray();
+        $userIds[] = auth()->user()->id;
+        return $query->whereIn('user_id', $userIds);
+   
+      }
+    
     }
 
 
