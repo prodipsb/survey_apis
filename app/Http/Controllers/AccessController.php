@@ -598,10 +598,7 @@ class AccessController extends Controller
 
     public function showUsersByRole(Request $request)
     {        
-        $isSuper = $this->superAdminCheck();
-        if (!$isSuper) {
-            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
-        }
+       
         $isExist = $this->checkIfExistRole($request->id);
         if (!$isExist) {
             return $this->throwMessage(404, 'error', $request->id);
@@ -691,10 +688,6 @@ class AccessController extends Controller
     public function getUpperRoles(Request $request)
     {
 
-        $isSuper = $this->superAdminCheck();
-        if (!$isSuper) {
-            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
-        }
         $isExist = $this->checkIfExistRole($request->role_id);
         if (!$isExist) {
             return $this->throwMessage(404, 'error', 'Role is not exist!');
