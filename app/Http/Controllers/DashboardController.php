@@ -33,7 +33,7 @@ class DashboardController extends Controller
             $startMonth = Carbon::today()->startOfMonth()->format('Y-m-d H:i:s');
             $endMonth = Carbon::today()->endOfMonth()->format('Y-m-d H:i:s');
 
-            if(auth()->user()->id){
+            if(Auth::user()->user_type != "admin"){
                 $totalTodaySubmittedSurveyCount = $listData1Clone->where('user_id', auth()->user()->id)->where('date', $today)->pluck('totalSurvey')->first();
                 $totalMonthlySubmittedSurveyCount = $listData->where('user_id', auth()->user()->id)->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
                 $totalSubmittedSurveyCount = $listData->where('user_id', auth()->user()->id)->pluck('totalSurvey')->first();
