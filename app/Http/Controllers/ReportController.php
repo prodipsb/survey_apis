@@ -69,14 +69,13 @@ class ReportController extends Controller
             if ($request->has('export') && $request->get('export') == true) {
                 $listData = SurveyResource::collection($listData->get());
                 $fields = [
-                    'id',
                     'date',
                     'surveySubmittedUserName',
                     'surveySubmittedUserEmail',
                     'surveySubmittedUserPhone',
                     'role',
                     'supervisor',
-                    'roportTo',
+                    'binNumber', 
                     'binHolderName', 
                     'binHolderEmail',
                     'binHolderMobile',

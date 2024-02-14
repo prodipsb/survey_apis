@@ -17,18 +17,16 @@ class SurveyResource extends JsonResource
         //return parent::toArray($request);
 
         return [
-            'id'=> $this->id,
             'date'=> $this->date,
             'surveySubmittedUserName' => $this->surveySubmittedUserName,
             'surveySubmittedUserEmail' => $this->surveySubmittedUserEmail,
             'surveySubmittedUserPhone' => $this->surveySubmittedUserPhone,
             'role' => $this->role->name,
             'supervisor' => $this->supervisor,
-            'roportTo' => $this->reportTo,
+            'binNumber' => $this->binNumber,
             'binHolderName' => $this->binHolderName,
             'binHolderEmail' => $this->binHolderEmail,
             'binHolderMobile' => $this->binHolderMobile,
-            'binNumber' => $this->binNumber,
             'division' => $this->division,
             'circle' => $this->circle,
             'shopName' => $this->shopName,
