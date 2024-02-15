@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DevController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PushNotificationController;
@@ -136,4 +137,9 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
 
 
     Route::post('logout', [AuthController::class, 'logout'])->name('user.logout');
+
+
+    //========= Dev Routes ==========
+    Route::get('update-devices', [DevController::class, 'index'])->name('devices.update');
+
 });

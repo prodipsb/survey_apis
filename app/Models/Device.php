@@ -12,6 +12,7 @@ class Device extends Model
 
     protected $fillable = [
         'user_id',
+        'role_id',
         'user',
         'device_token'
         
@@ -19,6 +20,10 @@ class Device extends Model
 
     public function role(){
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function userInfo(){
+        return $this->belongsTo(User::class, 'user_id');
     }
 
 

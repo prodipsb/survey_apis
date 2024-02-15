@@ -27,6 +27,7 @@ class SurveyResource extends JsonResource
             'binHolderName' => $this->binHolderName,
             'binHolderEmail' => $this->binHolderEmail,
             'binHolderMobile' => $this->binHolderMobile,
+            'commissioneRate' => $this->commissioneRate,
             'division' => $this->division,
             'circle' => $this->circle,
             'shopName' => $this->shopName,
