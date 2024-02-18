@@ -199,6 +199,7 @@ class UserController extends Controller
                // return $this->throwMessage(200, 'success', ["user_role" => $user->role_id, "request_role" => $request->role_id]);
                 if($user->role_id !== (int)$request->role_id){
                     $user->updateRoleAndPermissions($role);
+                    $request->merge(['user_type' => str::slug($role->name, '_')]);
                     // $user->removeRoles();
                     // // $user->roles()->detach();
                     // $user->assignRole($role);
