@@ -34,7 +34,7 @@ class UserController extends Controller
             
             if ($request->has('start_date') && $request->has('end_date')) {
                 $listData = $listData->whereBetween('date_of_joining', [$request->start_date, $request->end_date]);
-            } 
+            }
 
             if($request->has('search')) {
                 $listData = $listData->when(request('search'), function ($query, $search) {
@@ -44,6 +44,10 @@ class UserController extends Controller
                     'email'
                    ], $search);
                });
+           }
+
+           if ($request->has('role_id') && $request->has('role_id')) {
+            $listData = $listData->where('role_id', $request->role_id);
            }
 
             if ($request->has('export') && $request->get('export') == true) {

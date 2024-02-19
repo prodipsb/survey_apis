@@ -64,6 +64,10 @@ class ReportController extends Controller
                 $listData = $listData->whereBetween('date', [$request->start_date, $request->end_date]);
             }
 
+            if ($request->has('role_id') && $request->has('role_id')) {
+                $listData = $listData->where('role_id', $request->role_id);
+            }
+
            
             
             if ($request->has('export') && $request->get('export') == true) {
@@ -128,6 +132,8 @@ class ReportController extends Controller
                 
                 return $this->csvExport($listDataExport, $fields, '/uploads/reports');
             }
+
+
             $listData = $listData->orderBy('created_at', 'desc');
             
 	    	$listData = $listData->paginate($this->limit);
