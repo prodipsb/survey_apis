@@ -36,6 +36,10 @@ class UserController extends Controller
                 $listData = $listData->whereBetween('date_of_joining', [$request->start_date, $request->end_date]);
             }
 
+            if ($request->has('employee_id')) {
+                $listData = $listData->where('employee_id', $request->employee_id);
+            }
+
             if($request->has('search')) {
                 $listData = $listData->when(request('search'), function ($query, $search) {
                    $query->whereFullText([
