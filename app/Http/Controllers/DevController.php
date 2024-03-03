@@ -66,7 +66,7 @@ class DevController extends Controller
         $data = collect($data);
     
         // Chunk size for processing
-        $chunkSize = 2000; // Adjust the chunk size as per your requirements
+        $chunkSize = 500; // Adjust the chunk size as per your requirements
     
         // Process data in chunks
         $data->chunk($chunkSize)->each(function ($chunk) {
