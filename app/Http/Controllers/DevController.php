@@ -61,14 +61,17 @@ class DevController extends Controller
         $file = storage_path('app/public/survey_archive/survey-archive-data-info.xlsx'); // Path to your Excel file
         $data = Excel::toCollection(null, $file);
         $data = $data[0]->skip(1);
-
+    
+        // Convert $data to Laravel Collection
+        $data = collect($data);
+    
         // Chunk size for processing
         $chunkSize = 100; // Adjust the chunk size as per your requirements
-
+    
         // Process data in chunks
-        $data->chunk($chunkSize, function ($chunk) {
+        $data->chunk($chunkSize)->each(function ($chunk) {
             $insertData = [];
-
+    
             foreach ($chunk as $row) {
                 $insertData[] = [
                     'bin_number' => $row[1],
@@ -80,13 +83,15 @@ class DevController extends Controller
                     'zone' => $row[7],
                     'email' => $row[8],
                     'mobile' => $row[9],
+                    'created_at' => now(), // You may adjust the timestamp as needed
+                    'updated_at' => now(),
                 ];
             }
-
+    
             // Insert data into the database
             SurveyArchive::insert($insertData);
         });
-
+    
         return $this->throwMessage(200, 'success', 'Survey Archive Data Stored Successfully!');
     }
 
