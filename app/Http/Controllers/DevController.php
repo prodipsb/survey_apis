@@ -66,7 +66,7 @@ class DevController extends Controller
         $data = collect($data);
     
         // Chunk size for processing
-        $chunkSize = 100; // Adjust the chunk size as per your requirements
+        $chunkSize = 1000; // Adjust the chunk size as per your requirements
     
         // Process data in chunks
         $data->chunk($chunkSize)->each(function ($chunk) {
@@ -82,9 +82,7 @@ class DevController extends Controller
                     'commissionerate' => $row[6],
                     'zone' => $row[7],
                     'email' => $row[8],
-                    'mobile' => $row[9],
-                    'created_at' => now(), // You may adjust the timestamp as needed
-                    'updated_at' => now(),
+                    'mobile' => $row[9]
                 ];
             }
     
