@@ -141,5 +141,13 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
 
     //========= Dev Routes ==========
     Route::get('update-devices', [DevController::class, 'index'])->name('devices.update');
+    Route::get('check-bin', [DevController::class, 'checkBinNumber'])->name('check.bin');
 
+});
+
+
+ //========= Dev Routes ==========
+Route::middleware('guest')->prefix('v1/')->group(function () {
+    Route::get('test-excel', [DevController::class, 'excelUpload'])->name('excel.upload');
+   
 });

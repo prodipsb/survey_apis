@@ -9,6 +9,8 @@ use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use App\Models\Notification;
+use App\Models\Survey;
+use App\Models\SurveyArchive;
 use App\Models\SurveyItem;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
@@ -667,6 +669,31 @@ trait GlobalTraits
             'direction' => $direction
         ];
         return $data;
+    }
+
+
+    public function checkBinNumber(Request $request){
+        $binNumber = $request->binNumber;
+
+        $binExist = SurveyArchive::where('bin_number', $binNumber)->first();
+        // dd('$binExist', $binExist);
+
+        if($binExist){
+            return true;
+            // return $this->throwMessage(200, 'success', 'Bin Number Found In Survey Archive!', $binExist);
+        }else{
+            $binCheck = Survey::where('binNumber', $binNumber)->first();
+            if($binCheck){
+                return true;
+                // return $this->throwMessage(200, 'success', 'Bin Number Found In Survey!', $binCheck);
+            }
+        }
+
+        return false;
+
+        // return $this->throwMessage(204, 'error', 'Unique Bin Number!');
+
+
     }
 
 

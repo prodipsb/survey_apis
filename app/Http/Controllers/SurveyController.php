@@ -91,6 +91,11 @@ class SurveyController extends Controller
     public function surveySubmission(Request $request)
     {
 
+        $binCheck = $this->checkBinNumber($request);
+        if($binCheck){
+            return $this->throwMessage(422, 'error', 'Bin Number Already Exist!', $binCheck);
+        }
+
 
 
         $inputs = $request->all();
