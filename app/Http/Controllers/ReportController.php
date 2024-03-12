@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\SurveyResource;
 use App\Http\Traits\GlobalTraits;
 use App\Models\Survey;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -38,27 +39,6 @@ class ReportController extends Controller
                     ], $search);
                 });
             }
-
-
-                // $listData = $listData::search($request->search);
-
-                // $listData = $listData->when(request('search'), function ($query, $search) {
-                //     $query->whereFullText([
-                //         'binHolderName',
-                //         'binHolderMobile',
-                //         'binHolderEmail',
-                //         'shopName',
-                //         'brandName',
-                //         'productName',
-                //     ], $search);
-                // });
-           // }
-
-
-            // if($request->search){
-            //     $listData = $listData->where('name', 'like', '%'.$request->search.'%');
-            // }
-        
             
             if ($request->has('start_date') && $request->has('end_date')) {
                 $listData = $listData->whereBetween('date', [$request->start_date, $request->end_date]);
@@ -66,6 +46,17 @@ class ReportController extends Controller
 
             if ($request->has('role_id') && $request->has('role_id')) {
                 $listData = $listData->where('role_id', $request->role_id);
+            }
+
+            if ($request->has('supervise_user_id') && $request->has('supervise_user_id')) {
+                $userIds = User::where('supervisor_user_id', $request->supervise_user_id)->pluck('id')->toArray();
+                $listData = $listData->whereIn('user_id', $userIds);
+                $listData->with('superviseUsers');
+            }
+
+            if ($request->has('supervise2_user_id') && $request->has('supervise2_user_id')) {
+                $userIds = User::where('supervisor_user_id', $request->supervise2_user_id)->pluck('id')->toArray();
+                $listData = $listData->where('user_id', $request->supervise2_user_id);
             }
 
            

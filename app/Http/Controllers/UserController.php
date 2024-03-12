@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SuperviseUsers;
 use App\Http\Resources\UserResource;
 use App\Http\Traits\GlobalTraits;
 use App\Models\User;
@@ -441,19 +442,6 @@ class UserController extends Controller
                     'password' => Hash::make(123456),
                 ]);
 
-                // dd($user);
-
-                // return $this->throwMessage(404, 'error', 'Role not found', $user);
-
-               // dd('dfdf', $userRole);
-
-              //  if ($userRole) {
-                   // dd('aa', $userRole);
-                    // Retrieve the role object from the relationship
-                  //  $role = $userRole->first();
-                  //  dd($role);
-
-                  //  return $this->throwMessage(404, 'error', 'Role not found', $role);
                    
                 
                     if ($userRole) {
@@ -530,6 +518,26 @@ class UserController extends Controller
 
 
 
+
+    public function getSuperviseUsers(){
+
+        $auth = auth()->user();
+        $users = User::select('id', 'name', 'role_id')->where('supervisor_user_id', $auth->id)->get();
+        $users =  SuperviseUsers::collection($users);
+        return $this->throwMessage(200, 'success', 'Supervisor Users', $users);
+    }
+
+
+    public function getSuperviseUsersList(Request $request){
+
+        $superviseUserId = $request->supervisor_user_id;
+        $users = User::select('id', 'name', 'role_id')->where('supervisor_user_id', $superviseUserId)->get();
+        $users =  SuperviseUsers::collection($users);
+        return $this->throwMessage(200, 'success', 'Supervisor User List', $users);
+    }
+
+
+    
 
 
 

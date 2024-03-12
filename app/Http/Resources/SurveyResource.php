@@ -18,6 +18,7 @@ class SurveyResource extends JsonResource
 
         return [
             'date'=> $this->date,
+            'employee_id'=> $this->user->employee_id,
             'surveySubmittedUserName' => $this->surveySubmittedUserName,
             'surveySubmittedUserEmail' => $this->surveySubmittedUserEmail,
             'surveySubmittedUserPhone' => $this->surveySubmittedUserPhone,

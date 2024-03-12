@@ -135,6 +135,11 @@ class Survey extends Model
     
     }
 
+    public function superviseUsers()
+    {
+      return  $this->hasMany(User::class, 'id', 'user_id');
+    }
+
 
 
     public function role()

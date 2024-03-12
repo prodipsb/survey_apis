@@ -76,6 +76,9 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::post('password-update', [UserController::class, 'passwordUpdate'])->name('password.update');
     Route::post('avatar-update', [UserController::class, 'userAvatarUpdate'])->name('user.avatar');
     Route::post('user-status', [UserController::class, 'updateUserStatus'])->name('user.status');
+    Route::get('get-supervise-users', [UserController::class, 'getSuperviseUsers'])->name('supervise.users');
+    Route::get('get-supervise-users/list', [UserController::class, 'getSuperviseUsersList'])->name('supervise.users.list');
+
 
     Route::post('user-import', [UserController::class, 'importUser']);
 
