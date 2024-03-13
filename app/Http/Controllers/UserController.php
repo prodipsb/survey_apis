@@ -415,7 +415,6 @@ class UserController extends Controller
 
         foreach ($data as $key => $row) {
                 $userRole = Role::findByName($row['E']);
-               // dd($userRole);
                 $supervisorRole = Role::findByName($row['F']);
                 $supervisor = User::where('name', $row['G'])->first();
                 $user = User::create([
@@ -446,18 +445,13 @@ class UserController extends Controller
                 
                     if ($userRole) {
                         // Assign the role to the user
-                        $user->assignRole($userRole->name);
-
-                       // dd($userRole->permissions->pluck('name')->toArray());
-                
+                        $user->assignRole($userRole->name);                
                         // Sync permissions associated with the role
                        //  $user->syncPermissions($userRole->permissions()->pluck('name')->toArray());
                     } else {
                         return $this->throwMessage(404, 'error', 'Role not found');
                     }
-                // } else {
-                //     return $this->throwMessage(404, 'error', 'User role not specified');
-                // }
+               
 
 
                 
@@ -470,22 +464,6 @@ class UserController extends Controller
 
 
             // }
-
-            //return $this->throwMessage(200, 'success', "Import file successfully");
-
-            // if ($supervisor && ($user->id != $supervisor->id)) {
-            //     Supervisor::create([
-            //         'user_id' => $user->id,
-            //         'supervisor_id' => $supervisor->id,
-            //     ]);
-            // }
-            // foreach ($processes as  $process_id) {
-            //     $process = AgentProcess::where('user_id', $user->id)->where('process_id', $process_id)->exists();
-            //     if (!$process) {
-            //         $user->agentProcess()->create(['process_id' => $process_id]);
-            //     }
-            // }
-        // }
     }
 
     //return $this->throwMessage(200, 'success', "Import file successfully");
@@ -530,7 +508,20 @@ class UserController extends Controller
 
     public function getSuperviseUsersList(Request $request){
 
-        $superviseUserId = $request->supervisor_user_id;
+        if($request->supervise_user_id){
+            $superviseUserId = $request->supervise_user_id;
+
+        }elseif($request->supervise2_user_id){
+            $superviseUserId = $request->supervise2_user_id;
+
+        }elseif($request->supervise3_user_id){
+            $superviseUserId = $request->supervise3_user_id;
+
+        }else{
+            $superviseUserId = $request->supervise4_user_id;
+            
+        }
+
         $users = User::select('id', 'name', 'role_id')->where('supervisor_user_id', $superviseUserId)->get();
         $users =  SuperviseUsers::collection($users);
         return $this->throwMessage(200, 'success', 'Supervisor User List', $users);
