@@ -27,6 +27,7 @@ class ReportController extends Controller
     {
         try {
             $listData = Survey::process()->with('surveyItems');
+            // return $this->throwMessage(200, 'success', 'All the list of Survey ', $listData->get());
 
             if ($request->has('search')) {
                 $listData->whereFullText([
@@ -55,13 +56,15 @@ class ReportController extends Controller
                 $listData->whereIn('user_id', $userIds)->orWhere('user_id', $request->supervise4_user_id);
             } elseif ($request->has('supervise3_user_id')) {
                 $userIds = User::where('supervisor_user_id', $request->supervise3_user_id)->pluck('id')->toArray();
-                $listData->whereIn('user_id', $userIds)->with('superviseUsers');
+                //  return $this->throwMessage(200, 'success', 'All the list of Survey ', $request->all());
+                $listData->whereIn('user_id', $userIds)->with('superviseUsers')->orWhere('user_id', $request->supervise3_user_id);
             } elseif ($request->has('supervise2_user_id')) {
                 $userIds = User::where('supervisor_user_id', $request->supervise2_user_id)->pluck('id')->toArray();
-                $listData->whereIn('user_id', $userIds);
+                $listData->whereIn('user_id', $userIds)->orWhere('user_id', $request->supervise2_user_id);
             } elseif ($request->has('supervise_user_id')) {
                 $userIds = User::where('supervisor_user_id', $request->supervise_user_id)->pluck('id')->toArray();
-                $listData->whereIn('user_id', $userIds)->with('superviseUsers');
+                $userIds = User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+                $listData->whereIn('user_id', $userIds)->orWhere('user_id', $request->supervise_user_id);
             }
 
             if ($request->has('export') && $request->export == true) {

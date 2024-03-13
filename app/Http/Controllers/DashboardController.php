@@ -27,15 +27,16 @@ class DashboardController extends Controller
 
 
             $listData = $this->getModel($this->model)::select(DB::raw('count(user_id) as totalSurvey'))->process();
+           // dd($listData->get());
 
             $today =  Carbon::today(); 
             $startMonth = Carbon::today()->startOfMonth()->format('Y-m-d H:i:s');
             $endMonth = Carbon::today()->endOfMonth()->format('Y-m-d H:i:s');
 
             if(Auth::user()->user_type != "admin"){
-                $totalTodaySubmittedSurveyCount = $listData->clone($listData)->where('user_id', auth()->user()->id)->where('date', $today)->pluck('totalSurvey')->first();
-                $totalMonthlySubmittedSurveyCount = $listData->clone($listData)->where('user_id', auth()->user()->id)->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
-                $totalSubmittedSurveyCount = $listData->clone($listData)->where('user_id', auth()->user()->id)->pluck('totalSurvey')->first();
+                $totalTodaySubmittedSurveyCount = $listData->clone($listData)->where('date', $today)->pluck('totalSurvey')->first();
+                $totalMonthlySubmittedSurveyCount = $listData->clone($listData)->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+                $totalSubmittedSurveyCount = $listData->clone($listData)->pluck('totalSurvey')->first();
             }else{
                 $totalTodaySubmittedSurveyCount = $listData->clone($listData)->where('date', $today)->pluck('totalSurvey')->first();
                 $totalMonthlySubmittedSurveyCount = $listData->clone($listData)->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();

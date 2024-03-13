@@ -127,7 +127,10 @@ class Survey extends Model
         
       }else{
 
+        
         $userIds =  User::where('supervisor_user_id', auth()->user()->id)->pluck('id')->toArray();
+        $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+        $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
         $userIds[] = auth()->user()->id;
         return $query->whereIn('user_id', $userIds);
    
