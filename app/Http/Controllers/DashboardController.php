@@ -27,7 +27,6 @@ class DashboardController extends Controller
 
 
             $listData = $this->getModel($this->model)::select(DB::raw('count(user_id) as totalSurvey'))->process();
-           // dd($listData->get());
 
             $today =  Carbon::today(); 
             $startMonth = Carbon::today()->startOfMonth()->format('Y-m-d H:i:s');

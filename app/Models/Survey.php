@@ -126,11 +126,16 @@ class Survey extends Model
         return $query;
         
       }else{
-
         
         $userIds =  User::where('supervisor_user_id', auth()->user()->id)->pluck('id')->toArray();
-        $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
-        $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+        if(auth()->user()->user_type == 'territory_manager'){
+          $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+
+        }else{
+          $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+          $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+        }
+       
         $userIds[] = auth()->user()->id;
         return $query->whereIn('user_id', $userIds);
    
