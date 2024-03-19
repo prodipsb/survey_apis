@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SurveyResource extends JsonResource
@@ -17,7 +18,7 @@ class SurveyResource extends JsonResource
         //return parent::toArray($request);
 
         return [
-            'date'=> $this->date,
+            'date'=> Carbon::parse($this->created_at)->format('d-m-Y h:i A'),
             'employee_id'=> $this->user->employee_id,
             'surveySubmittedUserName' => $this->surveySubmittedUserName,
             'surveySubmittedUserEmail' => $this->surveySubmittedUserEmail,

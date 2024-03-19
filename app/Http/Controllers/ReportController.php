@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SurveyReportResource;
 use App\Http\Resources\SurveyResource;
 use App\Http\Traits\GlobalTraits;
 use App\Models\Survey;
@@ -83,57 +84,48 @@ class ReportController extends Controller
     private function exportData($listData)
     {
         $fields = [
-            'date',
-            'surveySubmittedUserName',
-            'surveySubmittedUserEmail',
-            'surveySubmittedUserPhone',
-            'role',
-            'supervisor',
-            'binNumber',
-            'binHolderName',
-            'binHolderEmail',
-            'binHolderMobile',
-            'division',
-            'circle',
-            'shopName',
-            'brandname',
-            'businessRegisteredAddress',
-            'outletAddress',
-            'category',
-            'subCategory',
-            'numberOfOutlet',
-            'numberOfCounter',
-            'transactionType',
-            'monthlyAverageSales',
-            'monthlyAverageCustomer',
-            'onlineSaleAvailable',
-            'onlineSaleParcent',
-            'onlineOrderMode',
-            'productInfo',
-            'productName',
-            'productUnit',
-            'unitPrice',
-            'vatParcent',
-            'sdPercent',
-            'priceIncludingVat',
-            'priceExcludingVat',
-            'weeklyHoliday',
+            'Date',
+            'Employee ID',
+            'Name',
+            'Mobile Number',
+            'Role',
+            'Supervisor',
+            'BIN Number',
+            'BIN Holder',
+            'BIN Holder Mobile',
+            'Division',
+            'Circle',
+            'ShopName',
+            'Business Registered Address',
+            'Outlet Address',
+            'Category',
+            'Sub Category',
+            'Transaction Type',
+            'Online Sale Available',
+            'Weekly Holiday',
         ];
 
-        $listDataArray = $listData->map(function ($resource) {
-            return $resource->toArray(request());
-        });
+        // $listDataArray = $listData->map(function ($resource) {
+        //     return $resource->toArray(request());
+        // });
 
-        $listDataExport = [];
-        foreach ($listDataArray as $item) {
-            $rowData = [];
-            foreach ($fields as $field) {
-                $rowData[] = $item[$field] ?? ""; // Use empty string if the field is not present
-            }
-            $listDataExport[] = $rowData;
-        }
+        // $listDataExport = [];
+        // foreach ($listDataArray as $item) {
+        //     $rowData = [];
+        //     foreach ($fields as $field) {
+        //         $rowData[] = $item[$field] ?? ""; // Use empty string if the field is not present
+        //     }
+        //     $listDataExport[] = $rowData;
+        // }
 
-        return $this->csvExport($listDataExport, $fields, '/uploads/reports');
+
+        $collection = match ( 'survey' ) {
+            'survey' => SurveyReportResource::collection( $listData ),
+        };
+
+        $collectionData = $collection->toArray( $fields );
+
+        return $this->csvExport($collectionData, $fields, '/uploads/reports');
     }
 
 
