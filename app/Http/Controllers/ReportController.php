@@ -87,36 +87,54 @@ class ReportController extends Controller
             'Date',
             'Employee ID',
             'Name',
+            'Email',
             'Mobile Number',
             'Role',
             'Supervisor',
             'BIN Number',
             'BIN Holder',
+            'BIN Holder Email',
             'BIN Holder Mobile',
+            'CommissioneRate',
             'Division',
             'Circle',
             'ShopName',
+            'BrandName',
             'Business Registered Address',
             'Outlet Address',
             'Category',
             'Sub Category',
+            'Number Of Outlet',
+            'Number Of Counter',
             'Transaction Type',
+            'POS Software Provider',
+            'NBR Approved',
+            'Monthly Average Sales',
+            'Monthly Average Customer',
+            'Third Party Name',
             'Online Sale Available',
+            'Online Sale Parcent',
+            'Online Order Mode', 
+            'Mushak', 
+            'Product Info',
+            'Product Name',
+            'Product Unit',
+            'Unit Price',
+            'VAT Parcent', 
+            'SD Percent',
+            'Price Including VAT',
+            'Price Excluding VAT',
+            'Stock Keeping',
+            'POS Software',
+            'POS Printer',
+            'PC Or Laptop',
+            'Router',
+            'Networking',
+            'Surveillance',
+            'Mobile Operator',
+            'Operator Coverage',
             'Weekly Holiday',
         ];
-
-        // $listDataArray = $listData->map(function ($resource) {
-        //     return $resource->toArray(request());
-        // });
-
-        // $listDataExport = [];
-        // foreach ($listDataArray as $item) {
-        //     $rowData = [];
-        //     foreach ($fields as $field) {
-        //         $rowData[] = $item[$field] ?? ""; // Use empty string if the field is not present
-        //     }
-        //     $listDataExport[] = $rowData;
-        // }
 
 
         $collection = match ( 'survey' ) {

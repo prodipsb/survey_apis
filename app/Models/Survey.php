@@ -122,7 +122,7 @@ class Survey extends Model
     public function scopeProcess($query)
     {
 
-      if(auth()->user()->user_type == 'admin'){
+      if(auth()->user()->user_type == 'admin' || auth()->user()->user_type == 'executive'){
         return $query;
         
       }else{

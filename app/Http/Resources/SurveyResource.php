@@ -16,7 +16,6 @@ class SurveyResource extends JsonResource
     public function toArray($request)
     {
         //return parent::toArray($request);
-
         return [
             'date'=> Carbon::parse($this->created_at)->format('d-m-Y h:i A'),
             'employee_id'=> $this->user->employee_id,
@@ -67,9 +66,9 @@ class SurveyResource extends JsonResource
             'surveillance' => $this->surveillance,
             'mobileOperator' => $this->mobileOperator,
             'operatorCoverage' => $this->operatorCoverage,
+            'weeklyHoliday' => $this->weeklyHoliday,
             'shopPic' => $this->shopPic,
             'binCertificate' => $this->binCertificate,
-            'weeklyHoliday' => $this->weeklyHoliday,
             'serveyItemList' => $this->surveyItems,
         ];
         
