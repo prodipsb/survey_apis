@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\AccessController;
+use App\Http\Controllers\ArchivedSurveyController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DevController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\ReportController;
@@ -95,6 +98,18 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::post('survey-delete', [SurveyController::class, 'surveyDelete'])->name('survey.delete');
 
 
+    //========= Archived Survey Routes ==========
+    Route::get('archived-surveys', [ArchivedSurveyController::class, 'archivedSurveys'])->name('surveys.archived');
+
+
+
+    //========= Attandance Routes ==========
+    Route::get('attendances', [AttendanceController::class, 'index'])->name('attendances');
+    Route::post('attendance', [AttendanceController::class, 'storeAttendance'])->name('store.attendance');
+    Route::get('user-current-attendance', [AttendanceController::class, 'getUserCurrentAttendance'])->name('user.currect.attendance');
+
+
+
     //========= Setting Routes ==========
 
     Route::post('general-settings', [SettingController::class, 'generalSettingStore'])->name('setting.store');
@@ -152,5 +167,9 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
  //========= Dev Routes ==========
 Route::middleware('guest')->prefix('v1/')->group(function () {
     Route::get('test-excel', [DevController::class, 'excelUpload'])->name('excel.upload');
+    Route::get('geo-location', [LocationController::class, 'getLocationName'])->name('geo.location');
+
+    Route::get('update-archive-survey', [DevController::class, 'updateArchiveSurvey'])->name('update.archive');
+
    
 });

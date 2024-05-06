@@ -36,4 +36,9 @@ return [
         'password_client_secret' => env('PASSWORD_CLIENT_SECRET'),
     ],
 
+    'google_map' => [
+        'google_map_activation' => env('GOOGLE_MAPS_ACTIVATION'),
+        'google_map_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    ]
+
 ];

@@ -27,34 +27,6 @@ class DevController extends Controller
         return $this->throwMessage(200, 'success', 'User Device Role Updated');
     }
 
-    // public function excelUpload(){
-
-    //     $file = storage_path('app/public/survey_archive/survey-archive-data-info.xlsx'); // Path to your Excel file
-    //     $data = Excel::toCollection(null, $file);
-    //     $data = $data[0]->skip(1);
-
-    //     // Insert data into the database
-    //     foreach ($data as $row) {
-
-    //         SurveyArchive::create([
-    //             'bin_number' => $row[1], 
-    //             'bin_holder_name' => $row[2], 
-    //             'bin_holder_address' => $row[3], 
-    //             'division' => $row[4], 
-    //             'circle' => $row[5], 
-    //             'commissionerate' => $row[6], 
-    //             'zone' => $row[7], 
-    //             'email' => $row[8], 
-    //             'mobile' => $row[9], 
-    //         ]);
-    //     }
-
-
-    //     return $this->throwMessage(200, 'success', 'Survey Archive Data Stored Successfully!');
-
-    // }
-
-
 
     public function excelUpload()
     {
@@ -112,5 +84,16 @@ class DevController extends Controller
         }
 
         return $this->throwMessage(204, 'error', 'Unique Bin Number!');
+    }
+
+
+    public function updateArchiveSurvey(){
+
+        SurveyArchive::whereNull('survey_type')->update([
+            'survey_type' => 'Archive'
+        ]);
+
+        return $this->throwMessage(200, 'success', 'Archive Survey Type Updated');
+
     }
 }

@@ -67,6 +67,8 @@ class SurveyResource extends JsonResource
             'mobileOperator' => $this->mobileOperator,
             'operatorCoverage' => $this->operatorCoverage,
             'weeklyHoliday' => $this->weeklyHoliday,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
             'shopPic' => $this->shopPic,
             'binCertificate' => $this->binCertificate,
             'serveyItemList' => $this->surveyItems,

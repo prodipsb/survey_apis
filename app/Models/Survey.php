@@ -43,6 +43,7 @@ class Survey extends Model
             'subCategory',
             'latitude',
             'longitude',
+            'tracked_location',
             'numberOfOutlet',
             'numberOfCounter',
             'differentBin',
@@ -74,6 +75,7 @@ class Survey extends Model
             'mobileOperator',
             'operatorCoverage',
             'weeklyHoliday',
+            'survey_type',
             'shopPic',
             'binCertificate'
 

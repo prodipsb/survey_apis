@@ -113,6 +113,7 @@ class AuthController extends Controller
                 'access_token' => $token,
                 'user' => [
                     'id' => $user->id,
+                    'employee_id' => $user->employee_id,
                     'role_id' => $user->role_id,
                     'name' => $user->name,
                     'avatar' => $user->avatar
