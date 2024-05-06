@@ -45,22 +45,7 @@ class GeocodingService
     
         }
         
-        $response = $this->client->get('https://maps.googleapis.com/maps/api/geocode/json', [
-            'query' => [
-                'latlng' => $latitude.','.$longitude,
-                'key' => env('GOOGLE_MAPS_API_KEY'),
-            ],
-        ]);
-
-        $data = json_decode($response->getBody(), true);
-
-        if (!empty($data['results'])) {
-            $dataArray = $data['results'];
-            $formattedAddresses = $this->extractFormattedAddressesFromObject($dataArray);
-            $formattedAddresses['display_name'] = $formattedAddresses[0];
-            return $formattedAddresses;
-
-        }
+        
         return null;
     }
 

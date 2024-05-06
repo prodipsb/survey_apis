@@ -157,7 +157,8 @@ class SurveyController extends Controller
             $request->merge(['survey_type' => $request->survey_type ? 'Archive' : 'New']);
 
             if($request->has('latitude') && $request->has('longitude')){
-                $request->merge(['tracked_location' => $this->geocodingService->getLocationName($request->latitude, $request->longitude)]);
+                $geoLocation = $this->geocodingService->getLocationName($request->latitude, $request->longitude);
+                $request->merge(['tracked_location' => $geoLocation['display_name']]);
             }
 
             $survey = $this->storeData($request, $this->model, $fileUpload = true, $fileInputName = ['shopPic', 'binCertificate'], $path = $this->uploadDir);
