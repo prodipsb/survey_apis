@@ -32,7 +32,7 @@ class GeocodingService
             if (!empty($data['results'])) {
                 $dataArray = $data['results'];
                 $formattedAddresses = $this->extractFormattedAddressesFromObject($dataArray);
-                $formattedAddresses['display_name'] = $formattedAddresses[0];
+                $formattedAddresses['display_name'] = $formattedAddresses[5];
                 return $formattedAddresses;
     
             }

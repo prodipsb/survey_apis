@@ -19,15 +19,6 @@ class ArchivedSurveyController extends Controller
         try {
             $listData = SurveyArchive::query();
 
-            if ($request->has('search')) {
-                $listData->whereFullText([
-                    'binHolderName',
-                    'binHolderMobile',
-                    'shopName',
-                    'surveySubmittedUserName',
-                ], $request->search);
-            }
-
             if ($request->has('binSearch') && $request->binSearch) {
                 $listData = $listData->where('bin_number', 'like', '%'.$request->binSearch.'%');
             }

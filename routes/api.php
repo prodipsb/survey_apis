@@ -96,6 +96,7 @@ Route::middleware('auth:api')->prefix('v1/')->group(function () {
     Route::get('surveys', [SurveyController::class, 'index']);
     Route::post('survey-update', [SurveyController::class, 'surveyUpdate'])->name('survey.update');
     Route::post('survey-delete', [SurveyController::class, 'surveyDelete'])->name('survey.delete');
+    Route::get('check-bin-existence', [SurveyController::class, 'checkBinNumberExistance'])->name('bin.existence');
 
 
     //========= Archived Survey Routes ==========

@@ -184,6 +184,22 @@ class SurveyController extends Controller
 
     }
 
+
+    public function checkBinNumberExistance(Request $request)
+    {
+        
+            $binNumber = $request->binNumber;
+            $binCheck = Survey::where('binNumber', $binNumber)->first();
+    
+            if ($binCheck) {
+                return $this->throwMessage(200, 'success', 'Bin Number Found!', $binCheck);
+            }
+            
+    
+            return $this->throwMessage(204, 'error', 'Unique Bin Number!');
+        
+    }
+
     
 
 
