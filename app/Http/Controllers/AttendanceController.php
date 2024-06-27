@@ -69,16 +69,24 @@ class AttendanceController extends Controller
         $userAtt = $this->getUserCurrentAtt();
 
         $geoLocation = $this->geocodingService->getLocationName($request->latitude, $request->longitude);
+        
 
         // $geoLocation = $this->getGeoLocation($request->latitude, $request->longitude);
 
         if($userAtt && $request->latitude){
 
+            // $geo = [
+            //     'out_latitude' => $request->latitude,
+            //     'out_longitude' => $request->longitude,
+            //     'out_location' => $geoLocation ? $geoLocation['display_name'] : '',
+            //     'out_json_location' => $geoLocation ? json_encode($geoLocation) : '{}'
+            // ];
+
             $geo = [
-                'out_latitude' => $request->latitude,
-                'out_longitude' => $request->longitude,
-                'out_location' => $geoLocation['display_name'],
-                'out_json_location' => json_encode($geoLocation)
+                'out_latitude' => isset($request->latitude) ? $request->latitude : null,
+                'out_longitude' => isset($request->longitude) ? $request->longitude : null,
+                'out_location' => isset($geoLocation) && isset($geoLocation['display_name']) ? $geoLocation['display_name'] : '',
+                'out_json_location' => isset($geoLocation) ? json_encode($geoLocation) : '{}'
             ];
 
             $userAtt->update($geo);
@@ -96,8 +104,8 @@ class AttendanceController extends Controller
             'date' => now(),
             'in_latitude' => $request->latitude,
             'in_longitude' => $request->longitude,
-            'in_location' => $geoLocation['display_name'],
-            'in_json_location' => json_encode($geoLocation),
+            'in_location' => $geoLocation ? $geoLocation['display_name'] : '',
+            'in_json_location' => isset($geoLocation) ? json_encode($geoLocation) : '{}'
 
         ];
 

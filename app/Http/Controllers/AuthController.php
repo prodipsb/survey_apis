@@ -65,7 +65,7 @@ class AuthController extends Controller
         }
        
        
-         Auth::shouldUse('web');
+          Auth::shouldUse('web');
 
          if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
             $auth = User::where('email', $request->email)->first();
@@ -87,10 +87,12 @@ class AuthController extends Controller
             $auth->save();
         }
 
+       // dd(Auth::guard('passport')->attempt($inputs));
 
         if(Auth::attempt($inputs)){
 
             $auth = Auth::user();
+
             
             if(!$auth->roles->isEmpty() && $auth->roles[0]->hasPermissionTo($request->login_mode) == false){
                 return $this->throwMessage(401, 'error', "Permission denied, You don't have {$request->login_mode} permission");
@@ -114,6 +116,7 @@ class AuthController extends Controller
                 'user' => [
                     'id' => $user->id,
                     'employee_id' => $user->employee_id,
+                    'role' => $user->role->name,
                     'role_id' => $user->role_id,
                     'name' => $user->name,
                     'avatar' => $user->avatar

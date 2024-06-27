@@ -40,11 +40,6 @@ class ProxyRequest
             'client_secret' => config('services.passport.password_client_secret'),
             'scope' => '*',
         ], $params);
-
-        //  dd('aaa', $params);
-
-
-       
      
        // $token = json_decode((string) $response->getBody(), true);
        // dd($token);

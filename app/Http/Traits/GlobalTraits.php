@@ -9,6 +9,7 @@ use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use App\Models\Notification;
+use App\Models\ServiceIssue;
 use App\Models\Survey;
 use App\Models\SurveyArchive;
 use App\Models\SurveyItem;
@@ -153,7 +154,6 @@ trait GlobalTraits
         $insertedData = $model::create($storeInput);
         if ($fileUpload) {
             $this->checkFileDirectory($path);
-          //  dd('$fileInputNames', $fileInputNames);
             foreach ($fileInputNames as $fileInputName) {
                 if (!empty($fileInputName) && $request->has($fileInputName)) {
                     $filename = $this->uploadFile($request, $fileInputName, $path);
@@ -190,6 +190,18 @@ trait GlobalTraits
             
         }
         return $filename;
+    }
+
+
+    public function storeServiceIssues($service_id, $issues)
+    {
+        foreach ($issues as $issue) {
+            ServiceIssue::create([
+                'service_id' => $service_id,
+                'issue_id' => $issue
+            ]);
+        }
+        return true;
     }
 
 

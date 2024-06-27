@@ -220,6 +220,8 @@ class AccessController extends Controller
 
     public function permissionCreate(Request $request)
     {
+        // dd(Permission::where('name', 'attendance report')->first());
+        // dd(Auth::user()->user_type);
 
         if (Auth::user()->user_type !== 'admin') {
             return $this->throwMessage(404, 'error', 'Permission denied, Only Admin can access!');
