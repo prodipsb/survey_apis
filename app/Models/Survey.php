@@ -8,6 +8,7 @@ use App\Notifications\SurveyNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class Survey extends Model
 {
@@ -42,6 +43,7 @@ class Survey extends Model
             'subCategory',
             'latitude',
             'longitude',
+            'tracked_location',
             'numberOfOutlet',
             'numberOfCounter',
             'differentBin',
@@ -72,6 +74,8 @@ class Survey extends Model
             'surveillance',
             'mobileOperator',
             'operatorCoverage',
+            'weeklyHoliday',
+            'survey_type',
             'shopPic',
             'binCertificate'
 
@@ -91,6 +95,8 @@ class Survey extends Model
 
 
     protected $dispatchesEvents = [ 'created' => SurveyNotificationEvent::class ];
+
+    protected $appends = ['supervisor', 'reportTo'];
 
 
   //   public static function boot() {
@@ -118,23 +124,50 @@ class Survey extends Model
     public function scopeProcess($query)
     {
 
+      if(auth()->user()->user_type == 'admin' || auth()->user()->user_type == 'executive'){
+        return $query;
+        
+      }else{
+        
+        $userIds =  User::where('supervisor_user_id', auth()->user()->id)->pluck('id')->toArray();
+        if(auth()->user()->user_type == 'territory_manager'){
+          $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
 
-      if(Auth::user()->role_id = 1){
-        $userProcessId = [1,2,3,4,5];
-      }elseif(Auth::user()->role_id = 2){
-        $userProcessId = [2,3,4,5];
-      }elseif(Auth::user()->role_id = 3){
-        $userProcessId = [3,4,5];
-      }elseif(Auth::user()->role_id = 4){
-        $userProcessId = [4,5];
-      }elseif(Auth::user()->role_id = 5){
-        $userProcessId = [5];
+        }else{
+          $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+          $userIds =  User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+        }
+       
+        $userIds[] = auth()->user()->id;
+        return $query->whereIn('user_id', $userIds);
+   
       }
+    
+    }
 
-     // dd($query->whereIn('role_id', $userProcessId)->get());
+    public function superviseUsers()
+    {
+      return  $this->hasMany(User::class, 'id', 'user_id');
+    }
 
-      return $query->whereIn('role_id', $userProcessId);
 
+
+    public function role()
+    {
+      return  $this->belongsTo(Role::class, 'role_id');
+    }
+
+
+    public function getSupervisorAttribute()
+    {
+       $supervisor = User::find($this->user->supervisor_user_id);
+       return $supervisor?->name;
+    }
+
+    public function getReportToAttribute()
+    {
+      $reportingTo = User::find($this->user->reporting_user_id);
+      return $reportingTo?->name;
     }
 
     

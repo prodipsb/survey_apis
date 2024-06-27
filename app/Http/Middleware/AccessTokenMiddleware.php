@@ -24,7 +24,6 @@ class AccessTokenMiddleware
             // Extract the token from the Authorization header
             $headerValue = $request->header('Authorization');
             $token = str_replace('Bearer ', '', $headerValue);
-            // dd($token);
 
             $request->request->add(['access_token' => $token]);
 
@@ -33,8 +32,7 @@ class AccessTokenMiddleware
 
             // dd($request->all());
 
-            $rr = Passport::token()->where('id', $token)->exists();
-             dd($rr, $token);
+            Passport::token()->where('id', $token)->exists();
 
             if (!Passport::token()->where('id', $token)->exists()) {
                 throw new AuthenticationException('Invalid access token');

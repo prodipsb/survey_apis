@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Traits\GlobalTraits;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
+use App\Models\Role as RoleModel;
 
 class DashboardController extends Controller
 {
@@ -21,24 +25,50 @@ class DashboardController extends Controller
     {
         try {
 
+
             $listData = $this->getModel($this->model)::select(DB::raw('count(user_id) as totalSurvey'))->process();
-            $listData1Clone = $listData->clone($listData);
 
             $today =  Carbon::today(); 
             $startMonth = Carbon::today()->startOfMonth()->format('Y-m-d H:i:s');
             $endMonth = Carbon::today()->endOfMonth()->format('Y-m-d H:i:s');
 
-            $totalTodaySubmittedSurveyCount = $listData1Clone->where('date', $today)->pluck('totalSurvey')->first();
-            $totalMonthlySubmittedSurveyCount = $listData->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+            if(Auth::user()->user_type != "admin"){
+                $totalTodaySubmittedSurveyCount = $listData->clone($listData)->where('date', $today)->pluck('totalSurvey')->first();
+                $totalMonthlySubmittedSurveyCount = $listData->clone($listData)->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+                $totalSubmittedSurveyCount = $listData->clone($listData)->pluck('totalSurvey')->first();
+            }else{
+                $totalTodaySubmittedSurveyCount = $listData->clone($listData)->where('date', $today)->pluck('totalSurvey')->first();
+                $totalMonthlySubmittedSurveyCount = $listData->clone($listData)->whereBetween('created_at', [$startMonth, $endMonth])->pluck('totalSurvey')->first();
+                $totalSubmittedSurveyCount = $listData->clone($listData)->pluck('totalSurvey')->first();
+            }
 
-            // $user = User::query();
+           
+
+            if(Auth::user()->user_type == "admin"){
+                $userStats = RoleModel::withCount('user')->get();
+
+            }else{
+                $userStats = [];
+
+            }
 
            
             $data = [
-                'totalActivationOfficerCount' => 0,
-                'totalSupervisorCount' => 0,
-                'totalTeritoryOfficerCount' => 0,
-                'totalAreaManagerCount' => 0,
+               'userStats' => $userStats,
+               'stats' => [
+                    [
+                    'name' => 'Today Surveys',
+                    'count' => $totalTodaySubmittedSurveyCount
+                    ],
+                    [
+                        'name' => 'Monthly Surveys',
+                        'count' => $totalMonthlySubmittedSurveyCount
+                    ],
+                    [
+                        'name' => 'Total Surveys',
+                        'count' => $totalSubmittedSurveyCount
+                    ]
+                ],
                 'totalTodaySubmittedSurveyCount' => $totalTodaySubmittedSurveyCount,
                 'totalMonthlySubmittedSurveyCount' => $totalMonthlySubmittedSurveyCount
             ];

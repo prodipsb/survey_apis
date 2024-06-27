@@ -26,7 +26,7 @@ class NotificationResource extends JsonResource
            // "submitted_phone"=> $this->user->phone,
             "message"=> array_key_exists('message', $this->data) ? $this->data['message'] : '',
             "read" => $this->read_at ? 'Yes' : 'No',
-            "read_at" => Carbon::parse($this->read_at)->format("Y-m-d h:i:s A"),
+            "read_at" => $this->read_at ? Carbon::parse($this->read_at)->format("Y-m-d h:i:s A") : '',
             "created_at" => Carbon::parse($this->created_at)->format("Y-m-d h:i:s A"),
         ];
     }

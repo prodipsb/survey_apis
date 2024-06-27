@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -24,6 +25,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'employee_id',
         'name',
         'email',
         'password',
@@ -32,18 +34,21 @@ class User extends Authenticatable
         'supervisor_id',
         'user_type',
         'gender',
-        'reporting_role_id',
+        'supervisor_user_id',
         'bio',
-        'bin_no',
         'date_of_joining',
         'country',
-        'city',
+        'zone',
+        'commissionerate',
         'division',
-        'location',
+        'circle',
+        'address',
         'longitude',
         'latitude',
         'last_login',
         'last_logout',
+        'login_attempts',
+        'last_login_attempted_at',
         'created_by',
         'updated_by',
         'status'
@@ -77,16 +82,14 @@ class User extends Authenticatable
         'phone',
         'email',
         'user_type',
-        'location',
-        'bin_no'
     ];
 
     
 
 
-    public function isSuperAdmin($email)
+    public function isSuperAdmin($userType)
     {
-        if ($email == 'admin@admin.com') {
+        if ($userType == 'admin') {
             return true;
         } else {
             return false;
@@ -102,18 +105,55 @@ class User extends Authenticatable
         }
     }
 
+    // public function removeRoles()
+    // {
+    //     $this->roles()->detach();
+    // }
+
+    public function updateRoleAndPermissions($role)
+    {
+        // Remove all existing roles
+       // $this->syncRoles([]);
+       $this->roles()->detach();
+
+
+        // Assign the new role
+         $this->assignRole($role);
+
+        // dd($role->permissions);
+
+        // // Sync the permissions for the new role
+        // $this->syncPermissions($role->permissions);
+    }
+
 
 
     public function role(){
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function supervisor(){
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+
+    public function supervisorRole(){
         return $this->belongsTo(Role::class, 'supervisor_id');
     }
 
+    public function supervisor(){
+        return $this->belongsTo(User::class, 'supervisor_user_id');
+        // return $this->belongsTo(Role::class, 'supervisor_id');
+    }
+
     public function reportTo(){
-        return $this->belongsTo(Role::class, 'reporting_role_id');
+        return $this->belongsTo(User::class, 'reporting_user_id');
+        // return $this->belongsTo(Role::class, 'reporting_role_id');
+    }
+
+    public function permissions(){
+        return $this->belongsTo(Permission::class);
     }
 
     // public function roles() {

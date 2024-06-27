@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SurveyResource extends JsonResource
@@ -15,20 +16,20 @@ class SurveyResource extends JsonResource
     public function toArray($request)
     {
         //return parent::toArray($request);
-
         return [
-            'id'=> $this->id,
-            'date'=> $this->date,
-            'user_id'=> $this->user_id,
-            'role_id'=> $this->role_id,
+            'date'=> Carbon::parse($this->created_at)->format('d-m-Y h:i A'),
+            'employee_id'=> $this->user->employee_id,
             'surveySubmittedUserName' => $this->surveySubmittedUserName,
             'surveySubmittedUserEmail' => $this->surveySubmittedUserEmail,
             'surveySubmittedUserPhone' => $this->surveySubmittedUserPhone,
+            'role' => $this->role->name,
+            'supervisor' => $this->supervisor,
+            'binNumber' => $this->binNumber,
             'binHolderName' => $this->binHolderName,
             'binHolderEmail' => $this->binHolderEmail,
             'binHolderMobile' => $this->binHolderMobile,
+            'commissioneRate' => $this->commissioneRate,
             'division' => $this->division,
-            'subDivision' => $this->subDivision,
             'circle' => $this->circle,
             'shopName' => $this->shopName,
             'brandname' => $this->brandname,
@@ -65,6 +66,9 @@ class SurveyResource extends JsonResource
             'surveillance' => $this->surveillance,
             'mobileOperator' => $this->mobileOperator,
             'operatorCoverage' => $this->operatorCoverage,
+            'weeklyHoliday' => $this->weeklyHoliday,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
             'shopPic' => $this->shopPic,
             'binCertificate' => $this->binCertificate,
             'serveyItemList' => $this->surveyItems,

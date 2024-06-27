@@ -16,18 +16,18 @@ return new class extends Migration
      
     public function up()
     {
+        Schema::defaultStringLength(191);
         Schema::table('surveys', function (Blueprint $table) {
             $table->index(
                 [
-                    'surveySubmittedUserName' => '191',
-                    'surveySubmittedUserPhone' => '191',
-                    'binHolderName' => '191',
-                    'binHolderMobile' => '191',
-                    'shopName' => '191',
-                    'productName' => '191',
+                    'surveySubmittedUserName',
+                    'surveySubmittedUserPhone',
+                    'binHolderName',
+                    'binHolderMobile',
+                    'shopName',
+                  //  'productName',
                 ],
                 'fulltext_search',
-                'fulltext'
             );
         });
 

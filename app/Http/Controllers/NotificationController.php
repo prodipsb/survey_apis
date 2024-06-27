@@ -6,6 +6,7 @@ use App\Http\Resources\NotificationResource;
 use App\Http\Traits\GlobalTraits;
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class NotificationController extends Controller
 {
@@ -14,7 +15,7 @@ class NotificationController extends Controller
 
     protected $model = 'Notification';
 
-    protected $limit = 10;  
+    protected $limit = 10;
     /**
      * Display a listing of the resource.
      *
@@ -26,10 +27,10 @@ class NotificationController extends Controller
 
 
             $listData =  auth()->user()->notifications();
-           
+
             if ($request->has('start_date') && $request->has('end_date')) {
                 $listData = $listData->whereBetween('created_at', [$request->start_date, $request->end_date]);
-            } 
+            }
 
             $listData = $listData->orderBy('read_at', 'asc');
             $listData = $listData->orderBy('created_at', 'desc');
@@ -37,33 +38,49 @@ class NotificationController extends Controller
             $listData = $listData->paginate($this->limit);
             return NotificationResource::collection($listData);
 
-          //  return $this->throwMessage(200, 'success', 'All the list of notifications ', $listData);
+            //  return $this->throwMessage(200, 'success', 'All the list of notifications ', $listData);
 
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
         }
-        
-
     }
 
+    public function unreadNotifications()
+{
+    try {
+        // Get the authenticated user's unread notifications
+        $unreadNotifications = auth()->user()->unreadNotifications()
+            ->orderBy('created_at', 'desc') // Order by creation date in descending order
+            ->get(); // Retrieve the notifications
 
-    public function unreadNotifications(){
-        try {
+        // Count the number of unread notifications
+        $unreadCount = $unreadNotifications->count();
 
-            $unreadNotifications = auth()->user()->unreadnotifications();
-
-            $unreadNotifications = $unreadNotifications->orderBy('read_at', 'asc');
-            $unreadNotifications = $unreadNotifications->orderBy('created_at', 'desc');
-
-            $unreadNotifications = $unreadNotifications->get();
-
-            return $this->throwMessage(200, 'success', 'All the list of unread notifications ', $unreadNotifications);
-
-
-        } catch (\Exception $e) {
-            return $this->throwMessage(413,'error',$e->getMessage());   
-        }
+        // Return a success message with the count of unread notifications
+        return $this->throwMessage(200, 'success', 'All the list of unread notifications', $unreadCount);
+    } catch (\Exception $e) {
+        // Return an error message in case of an exception
+        return $this->throwMessage(413, 'error', $e->getMessage());
     }
+}
+
+
+    // public function unreadNotifications()
+    // {
+    //     try {
+
+    //         $unreadNotifications = auth()->user()->unreadnotifications();
+
+    //         $unreadNotifications = $unreadNotifications->orderBy('read_at', 'asc');
+    //         $unreadNotifications = $unreadNotifications->orderBy('created_at', 'desc');
+
+    //         $unreadNotifications = $unreadNotifications->count();
+
+    //         return $this->throwMessage(200, 'success', 'All the list of unread notifications ', $unreadNotifications);
+    //     } catch (\Exception $e) {
+    //         return $this->throwMessage(413, 'error', $e->getMessage());
+    //     }
+    // }
 
     /**
      * Show the form for creating a new resource.
@@ -94,18 +111,15 @@ class NotificationController extends Controller
      */
     public function show($id)
     {
-        
+
 
         try {
 
             $notification = Notification::findOrFail($id);
             return $this->throwMessage(200, 'success', 'Notification data ', $notification);
-
         } catch (\Exception $e) {
-            return $this->throwMessage(413,'error',$e->getMessage());   
+            return $this->throwMessage(413, 'error', $e->getMessage());
         }
-
-        
     }
 
 
@@ -117,12 +131,9 @@ class NotificationController extends Controller
 
             $notification = auth()->user()->notifications->where('id', $id)->markAsRead();
             return $this->throwMessage(200, 'success', 'Notification data ', $notification);
-
         } catch (\Exception $e) {
-            return $this->throwMessage(413,'error',$e->getMessage());   
+            return $this->throwMessage(413, 'error', $e->getMessage());
         }
-
-        
     }
 
     public function allNotificationRead(Request $request)
@@ -132,15 +143,12 @@ class NotificationController extends Controller
 
             auth()->user()->notifications->markAsRead();
             return $this->throwMessage(200, 'success', 'All Notification Mark As Read ');
-
         } catch (\Exception $e) {
-            return $this->throwMessage(413,'error',$e->getMessage());   
+            return $this->throwMessage(413, 'error', $e->getMessage());
         }
-
-        
     }
 
-    
+
 
     /**
      * Show the form for editing the specified resource.
@@ -152,14 +160,13 @@ class NotificationController extends Controller
     {
         try {
 
-            //dd($request->all());
-            
             return $this->throwMessage(200, 'success', 'Notification data ', $request->all());
-
         } catch (\Exception $e) {
-            return $this->throwMessage(413,'error',$e->getMessage());   
+            return $this->throwMessage(413, 'error', $e->getMessage());
         }
     }
+
+
 
     /**
      * Update the specified resource in storage.
@@ -181,9 +188,9 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request)
     {
-        $notificationId = $request->id;   
+        $notificationId = $request->id;
         try {
-            Notification::findOrFail($notificationId)?->delete();
+            Notification::findOrFail($notificationId)->delete();
             return $this->throwMessage(200, 'success', 'Notification deleted successfully');
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', 'Notification not found');
@@ -193,11 +200,10 @@ class NotificationController extends Controller
     public function allDestroy(Request $request)
     {
         try {
-            auth()->user()->notifications->delete();
+            auth()->user()->notifications()->delete();
             return $this->throwMessage(200, 'success', 'All Notifications deleted successfully');
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', 'Notification not found');
         }
     }
-
 }

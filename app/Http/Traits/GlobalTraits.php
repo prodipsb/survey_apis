@@ -9,6 +9,9 @@ use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use App\Models\Notification;
+use App\Models\ServiceIssue;
+use App\Models\Survey;
+use App\Models\SurveyArchive;
 use App\Models\SurveyItem;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
@@ -65,9 +68,9 @@ trait GlobalTraits
         return $course->title;
     }
 
-    public function isSuperAdmin($email)
+    public function isSuperAdmin($userType)
     {
-        if ($email == 'admin@admin.com') {
+        if ($userType == 'admin') {
             return true;
         } else {
             return false;
@@ -83,6 +86,32 @@ trait GlobalTraits
             return false;
         }
     }
+
+
+    public function getAuthUserPermissions($search){
+
+         $permissions = [];
+         $user = Auth::user();
+
+         
+         foreach ($user->roles as $role) {
+            $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
+        }
+
+
+        // Custom callback function to filter elements
+        $filteredPermissions = array_filter($permissions, function ($name) use ($search) {
+            // Case-insensitive partial match
+            return stripos($name, $search) !== false;
+        });
+
+        return array_values($filteredPermissions);
+
+
+
+    }
+
+
 
     
 
@@ -125,7 +154,6 @@ trait GlobalTraits
         $insertedData = $model::create($storeInput);
         if ($fileUpload) {
             $this->checkFileDirectory($path);
-          //  dd('$fileInputNames', $fileInputNames);
             foreach ($fileInputNames as $fileInputName) {
                 if (!empty($fileInputName) && $request->has($fileInputName)) {
                     $filename = $this->uploadFile($request, $fileInputName, $path);
@@ -162,6 +190,18 @@ trait GlobalTraits
             
         }
         return $filename;
+    }
+
+
+    public function storeServiceIssues($service_id, $issues)
+    {
+        foreach ($issues as $issue) {
+            ServiceIssue::create([
+                'service_id' => $service_id,
+                'issue_id' => $issue
+            ]);
+        }
+        return true;
     }
 
 
@@ -475,32 +515,69 @@ trait GlobalTraits
     // }
 
 
+    public function csvExport($data = [], $heading = [])
+{
 
-    public function csvExport($data =[], $heading = [])
-    {
-        $fileName = 'export_'.time().'.csv';
-        
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=".$fileName,
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0"
-        );
-        
-        $columns = $heading;
+    // dd($data);
 
-        $callback = function () use ($data, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
+    $fileName = 'export_' . time() . '.csv';
 
-            foreach ($data as $item) {
-                fputcsv($file, $item);
+    $headers = array(
+        "Content-type" => "text/csv",
+        "Content-Disposition" => "attachment; filename=" . $fileName,
+        "Pragma" => "no-cache",
+        "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+        "Expires" => "0"
+    );
+
+    $columns = $heading;
+
+    $callback = function () use ($data, $columns) {
+        $file = fopen('php://output', 'w');
+        fputcsv($file, $columns);
+
+        foreach ($data as $item) {
+           // dd($item);
+            // Check if the number of elements in $item matches the number of elements in $columns
+            if (count($item) !== count($columns)) {
+                // If not, fill in missing values with empty strings
+                $item = array_pad($item, count($columns), '');
             }
-            fclose($file);
-        };
-        return response()->stream($callback, 200, $headers);
-    }
+            fputcsv($file, $item);
+        }
+        fclose($file);
+    };
+    return response()->stream($callback, 200, $headers);
+}
+
+
+
+
+    // public function csvExport($data =[], $heading = [])
+    // {
+    //     $fileName = 'export_'.time().'.csv';
+        
+    //     $headers = array(
+    //         "Content-type" => "text/csv",
+    //         "Content-Disposition" => "attachment; filename=".$fileName,
+    //         "Pragma" => "no-cache",
+    //         "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+    //         "Expires" => "0"
+    //     );
+        
+    //     $columns = $heading;
+
+    //     $callback = function () use ($data, $columns) {
+    //         $file = fopen('php://output', 'w');
+    //         fputcsv($file, $columns);
+
+    //         foreach ($data as $item) {
+    //             fputcsv($file, $item);
+    //         }
+    //         fclose($file);
+    //     };
+    //     return response()->stream($callback, 200, $headers);
+    // }
 
 
     // public function applyFilter($request, $userQuery)
@@ -604,6 +681,31 @@ trait GlobalTraits
             'direction' => $direction
         ];
         return $data;
+    }
+
+
+    public function checkBinNumber(Request $request){
+        $binNumber = $request->binNumber;
+
+        $binExist = SurveyArchive::where('bin_number', $binNumber)->first();
+        // dd('$binExist', $binExist);
+
+        if($binExist){
+            return true;
+            // return $this->throwMessage(200, 'success', 'Bin Number Found In Survey Archive!', $binExist);
+        }else{
+            $binCheck = Survey::where('binNumber', $binNumber)->first();
+            if($binCheck){
+                return true;
+                // return $this->throwMessage(200, 'success', 'Bin Number Found In Survey!', $binCheck);
+            }
+        }
+
+        return false;
+
+        // return $this->throwMessage(204, 'error', 'Unique Bin Number!');
+
+
     }
 
 

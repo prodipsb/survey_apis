@@ -15,9 +15,13 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             
+            $table->engine = 'InnoDB';
             $table->unsignedBigInteger('role_id');
+            $table->unsignedBigInteger('employee_id')->unique();
             $table->unsignedBigInteger('supervisor_id')->nullable();
             $table->unsignedBigInteger('reporting_role_id')->nullable();
+            $table->unsignedBigInteger('supervisor_user_id')->nullable();
+            $table->unsignedBigInteger('reporting_user_id')->nullable();
             $table->string('phone')->nullable();
             $table->string('avatar')->nullable();
             $table->string('user_type')->nullable();
@@ -30,7 +34,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('longitude')->nullable();
             $table->string('latitude')->nullable();
-            $table->dateTime('date_of_joining')->nullable();
+            $table->date('date_of_joining')->nullable();
 
             $table->dateTime('last_login')->nullable();
             $table->dateTime('last_logout')->nullable();
@@ -39,7 +43,9 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->string('status')->nullable();
 
-            $table->fullText(['name', 'phone', 'bin_no', 'user_type', 'location']); // adding full-text search indexes
+            $table->index(['name', 'phone', 'email'], 'fulltext_index');
+
+          //  $table->fullText(['name', 'phone', 'user_type', 'location']); // adding full-text search indexes
 
             
         });

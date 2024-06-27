@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Traits\GlobalTraits;
+use GuzzleHttp\ClientTrait;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
@@ -13,11 +15,13 @@ use App\Models\Supervisor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AccessController extends Controller
 {
 
+    use GlobalTraits;
     protected $limit = 10; 
     public function throwMessage($code, $status, $message, $data = false)
     {
@@ -43,17 +47,17 @@ class AccessController extends Controller
     }
 
 
-    public function isSuperAdmin($email)
+    public function isSuperAdmin($userType)
     {
         $model = new User();
-        return $model->isSuperAdmin($email);
+        return $model->isSuperAdmin($userType);
     }
 
     //Check if this is super admin or not
     public function superAdminCheck()
     {
         $user = auth()->user();
-        if (!$this->isSuperAdmin($user->email)) {
+        if (!$this->isSuperAdmin($user->user_type)) {
             return false;
         } else {
             return true;
@@ -69,7 +73,7 @@ class AccessController extends Controller
 
         $isSuper = $this->superAdminCheck();
         if (!$isSuper) {
-            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+            return $this->throwMessage(404, 'error', 'Permission denied, Only admin can access!');
         }
 
         //create
@@ -94,22 +98,32 @@ class AccessController extends Controller
 
 
     public function getRoles(Request $request)
-    {
-        // dd($request->pagination);
+    { 
 
+
+        $permissions = $this->getAuthUserPermissions('role');
+        
+       
         try {
             $listData = Role::query();
             if($request->search){
                 $listData = $listData->where('name', 'like', '%'.$request->search.'%');
             }
-            
-           // $listData = $listData->orderBy('created_at', 'desc');
-            
+
+
+            $listData = $listData->latest();
             if($request->pagination){
                 $listData = $listData->paginate($this->limit);
             }else{
                 $listData = $listData->get();
             }
+
+            $listData = [
+                'permissions' => $permissions,
+                'data' => $listData
+            ];
+            
+
 
             return $this->throwMessage(200, 'success', 'All Relos', $listData);
 
@@ -140,6 +154,30 @@ class AccessController extends Controller
           }
           return $this->throwMessage(200, 'success', 'Role assign successful');
       }
+
+
+      public function getRoleDevices()
+      {
+
+        // dd('sss');
+
+
+          $isSuper = $this->superAdminCheck();
+          if (!$isSuper) {
+              return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+          }
+
+          $role = Role::all();
+
+          foreach ($users as $user) {
+              $data = User::find($user);
+              $data->assignRole($role);
+          }
+
+          return $this->throwMessage(200, 'success', 'Role assign successful');
+      }
+
+      
 
 
 
@@ -182,10 +220,11 @@ class AccessController extends Controller
 
     public function permissionCreate(Request $request)
     {
+        // dd(Permission::where('name', 'attendance report')->first());
+        // dd(Auth::user()->user_type);
 
-        $isSuper = $this->superAdminCheck();
-        if (!$isSuper) {
-            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+        if (Auth::user()->user_type !== 'admin') {
+            return $this->throwMessage(404, 'error', 'Permission denied, Only Admin can access!');
         }
         //create
         Permission::create(['name' => $request->name, 'guard_name' => 'api']);
@@ -197,6 +236,8 @@ class AccessController extends Controller
 
     public function allPermission(Request $request)
     {
+
+        $permissions = $this->getAuthUserPermissions('permission');
 
         try {
             $listData = Permission::query();
@@ -212,6 +253,11 @@ class AccessController extends Controller
             }else{
                 $listData = $listData->get();
             }
+
+            $listData = [
+                'permissions' => $permissions,
+                'data' => $listData
+            ];
             
 
             return $this->throwMessage(200, 'success', 'All Permission', $listData);
@@ -246,6 +292,49 @@ class AccessController extends Controller
 
 
 
+    // public function setPermission(Request $request)
+    // {
+    //     // Validation
+    //     $validator = Validator::make($request->all(), [
+    //         'role_id' => 'required',
+    //         'permissions' => 'required|array', // Make sure permissions is an array
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return $this->throwMessage(400, 'error', $validator->errors()->first());
+    //     }
+
+    //     // Check super admin
+    //     $isSuper = $this->superAdminCheck();
+    //     if (!$isSuper) {
+    //         return $this->throwMessage(403, 'error', 'Permission denied. Only superadmin can access!');
+    //     }
+
+    //     // Find the role
+    //     try {
+    //         $role = Role::findOrFail($request->role_id);
+    //     } catch (\Exception $e) {
+    //         // Log the exception for debugging
+    //         Log::error('Error finding role: ' . $e->getMessage());
+
+    //         return $this->throwMessage(404, 'error', 'Role not found');
+    //     }
+
+    //     // Sync permissions
+    //     try {
+    //         $role->syncPermissions(['view reports']);
+    //     } catch (\Exception $e) {
+    //         // Log the exception for debugging
+    //         Log::error('Error syncing permissions: ' . $e->getMessage());
+
+    //         return $this->throwMessage(500, 'error', 'Error setting permissions. ' . $e->getMessage());
+    //     }
+
+    //     return $this->throwMessage(200, 'success', 'Successfully set the permission!');
+    // }
+
+
+
     public function setPermission(Request $request)
     {
 
@@ -263,8 +352,8 @@ class AccessController extends Controller
       try {
 
 
-        $role = Role::findOrFail($request->role_id);
-        
+         $role = Role::findOrFail($request->role_id);
+        // $role->syncPermissions($request->permissions);
 
         foreach ($request->permissions as $val) {
             $permission = Permission::find($val);
@@ -272,6 +361,39 @@ class AccessController extends Controller
         }
 
         return $this->throwMessage(200, 'success', 'Successfully set the permission!');
+
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', 'Role not found');
+        }
+        
+    }
+
+
+    public function removePermissionFromRole(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [ 'role_id' => 'required','permissions' => 'required' ]);
+
+        if ($validator->fails()) { return $validator->errors(); }
+
+        $isSuper = $this->superAdminCheck();
+        if (!$isSuper) {
+            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+        }
+
+
+      try {
+
+
+         $role = Role::findOrFail($request->role_id);
+
+        foreach ($request->permissions as $val) {
+            $permission = Permission::find($val);
+            $role->revokePermissionTo($permission->name);
+        }
+
+        return $this->throwMessage(200, 'success', 'Successfully remove the permission!');
 
 
         } catch (\Exception $e) {
@@ -296,6 +418,7 @@ class AccessController extends Controller
         }
 
         try {
+
         $permission = Permission::findOrFail($request->permission_id);
         $model = new User();
         $user = $model->findOrFail($request->user_id);
@@ -307,6 +430,31 @@ class AccessController extends Controller
             return $this->throwMessage(413, 'error', $e->getMessage());
         }
     }
+
+
+    // public function removePermissionFromRole(Request $request)
+    // {
+    //     if (!$this->superAdminCheck()) {
+    //         return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
+    //     }
+
+
+    //     try {
+
+    //   //  $user->syncPermissions(['edit articles', 'delete articles']);
+
+    //     $permission = Permission::findOrFail($request->permission_id);
+    //     $model = new User();
+    //     $user = $model->findOrFail($request->user_id);
+    //     $user->revokePermissionTo($permission->name);
+
+    //     return $this->throwMessage(200, 'success', 'Successfully removed permission!');
+
+    //     } catch (\Exception $e) {
+    //         return $this->throwMessage(413, 'error', $e->getMessage());
+    //     }
+    // }
+
 
 
 
@@ -344,15 +492,15 @@ class AccessController extends Controller
 
     public function userInformationWithPermission(Request $request)
     {
-       // dd($request->user_id);
-        $permissionData = [];
+
+        $permissions = [];
 
         $user = User::findOrFail($request->user_id);
 
         foreach ($user->roles as $role) {
-            array_push($permissionData, $role->permissions->pluck('name'));
+            $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
         }
-        $user->permission = $permissionData;
+        $user->permissions = $permissions;
         try {
             return $this->throwMessage(200, 'success', "User Information", $user);
         } catch (\Exception $e) {
@@ -451,26 +599,32 @@ class AccessController extends Controller
     }
 
     public function showUsersByRole(Request $request)
-    {
-        $isSuper = $this->superAdminCheck();
-        if (!$isSuper) {
-            return $this->throwMessage(404, 'error', 'Permission denied, Only superadmin can access!');
-        }
+    {        
+       
         $isExist = $this->checkIfExistRole($request->id);
         if (!$isExist) {
-            return $this->throwMessage(404, 'error', 'Role is not exist!');
+            return $this->throwMessage(404, 'error', $request->id);
         }
 
 
         try {
 
-            $data = Role::where('id', $request->id)->pluck('name');
+           // Retrieve the role name based on the ID from the request
+            $roleName = Role::where('id', $request->id)->value('name');
             $user = User::query();
-            $users = $user->role($data[0]);
+            $users = $user->role($roleName);
 
-            if($request->search){
+        //     $roleName = Role::where('id', $request->id)->value('name');
+        //     // Query users with the same role name
+        //     $usersWithSameRole = User::whereHas('roles', function ($query) use ($roleName) {
+        //         $query->where('name', $roleName);
+        //     })->get();
+
+
+            if($request->search != 'undefined'){
                 $users = $users->select('id', 'name')->where('name', 'like', '%'.$request->search.'%');
             }
+
                         
             if($request->pagination){
                 $users = $users->paginate($this->limit);
@@ -532,7 +686,27 @@ class AccessController extends Controller
         }
     }
 
-    
+
+    public function getUpperRoles(Request $request)
+    {
+
+        $isExist = $this->checkIfExistRole($request->role_id);
+        if (!$isExist) {
+            return $this->throwMessage(404, 'error', 'Role is not exist!');
+        }
+
+        try {
+
+        $rolesWithId1 = Role::where('id', 1)->get();
+        $roles = Role::where('id', '>', $request->role_id)->get();
+        $mergedRoles = collect($rolesWithId1->merge($roles))->sortByDesc('created_at')->values()->all();
+
+        return $this->throwMessage(200, 'success', "Role List", $mergedRoles);
+
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
+    }
 
 
 

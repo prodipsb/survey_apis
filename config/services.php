@@ -32,8 +32,13 @@ return [
     ],
 
     'passport' => [
-        'password_client_id' => env('PASSWORD_CLIENT_ID'),
-        'password_client_secret' => env('PASSWORD_CLIENT_SECRET'),
+        'password_client_id' => env('PASSPORT_PERSONAL_ACCESS_CLIENT_ID'),
+        'password_client_secret' => env('PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET'),
     ],
+
+    'google_map' => [
+        'google_map_activation' => env('GOOGLE_MAPS_ACTIVATION'),
+        'google_map_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    ]
 
 ];

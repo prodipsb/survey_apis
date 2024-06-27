@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Traits\GlobalTraits;
 use App\Models\Survey;
+use App\Models\SurveyArchive;
 use App\Models\User;
 use App\Notifications\SurveyNotification;
+use App\Services\GeocodingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+
 
 class SurveyController extends Controller
 {
@@ -19,9 +22,15 @@ class SurveyController extends Controller
     protected $surveyItemModel = 'SurveyItem';
     protected $uploadDir = 'uploads/survey';
     protected $uploadSurveyItemDir = 'uploads/surveyItems';
-
-
     protected $limit = 10;  
+    protected $geocodingService;
+
+
+    public function __construct(GeocodingService $geocodingService)
+    {
+        $this->geocodingService = $geocodingService;
+    }
+
 
     /**
      * Display a listing of the resource.
@@ -34,25 +43,6 @@ class SurveyController extends Controller
 
 
             $listData = Survey::query();
-
-            // dd($request->has('search1'));
-            // if($request->has('search1')){
-
-            //     dd($request->has('search1'));
-
-            //     $listData = $listData::search($request->search);
-
-            //     // $listData = $listData->when(request('search'), function ($query, $search) {
-            //     //     $query->whereFullText([
-            //     //         'binHolderName',
-            //     //         'binHolderMobile',
-            //     //         'binHolderEmail',
-            //     //         'shopName',
-            //     //         'brandName',
-            //     //         'productName',
-            //     //     ], $search);
-            //     // });
-            // }
            
             if ($request->has('start_date') && $request->has('end_date')) {
                 $listData = $listData->whereBetween('created_at', [$request->start_date, $request->end_date]);
@@ -61,9 +51,8 @@ class SurveyController extends Controller
             $listData = $listData->orderBy('created_at', 'desc');
 
             $listData = $listData->paginate($this->limit);
-            //return CourseResource::collection($listData);
 
-            return $this->throwMessage(200, 'success', 'All the list of Courses ', $listData);
+            return $this->throwMessage(200, 'success', 'All the list of Surveys ', $listData);
 
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
@@ -91,6 +80,11 @@ class SurveyController extends Controller
     public function surveySubmission(Request $request)
     {
 
+        // $binCheck = $this->checkBinNumber($request);
+        // if($binCheck){
+        //     return $this->throwMessage(422, 'error', 'Bin Number Already Exist!', $binCheck);
+        // }
+
 
 
         $inputs = $request->all();
@@ -100,7 +94,7 @@ class SurveyController extends Controller
 
             $rules = [
                 'binHolderName' => 'required',
-                'binHolderMobile' => 'required',
+                'binNumber' => 'required',
                 'shopName' => 'required',
             ];
 
@@ -113,7 +107,7 @@ class SurveyController extends Controller
 
             $rules = [
                 'binHolderName' => 'required',
-                'binHolderMobile' => 'required',
+                'binNumber' => 'required',
                 'shopName' => 'required',
             ];
 
@@ -132,21 +126,34 @@ class SurveyController extends Controller
         }
 
 
-
         try {
-
 
             $request->merge(['user_id' => $this->getAuthID()]);
             $request->merge(['surveySubmittedUserName' => Auth::user()->name]);
             $request->merge(['surveySubmittedUserEmail' => Auth::user()->email]);
             $request->merge(['surveySubmittedUserPhone' => Auth::user()->phone]);
             $request->merge(['role_id' => $this->getAuthRoleId()]);
+            $request->merge(['survey_type' => $request->survey_type ? 'Archive' : 'New']);
+
+            if($request->has('latitude') && $request->has('longitude')){
+                $geoLocation = $this->geocodingService->getLocationName($request->latitude, $request->longitude);
+                if($geoLocation){
+                    $request->merge(['tracked_location' => $geoLocation['display_name']]);
+
+                }
+            }
 
             $survey = $this->storeData($request, $this->model, $fileUpload = true, $fileInputName = ['shopPic', 'binCertificate'], $path = $this->uploadDir);
             
             // assign user to role
             if($request->itemList){
                $this->uploadSurveyItemList($request, $survey->id);
+            }
+
+            if($request->survey_type){
+                SurveyArchive::where('bin_number', $request->binNumber)->update([
+                    'survey_type' => 'New'
+                ]);
             }
 
             return $this->throwMessage(200, 'success', $message);
@@ -157,6 +164,22 @@ class SurveyController extends Controller
         }
 
 
+    }
+
+
+    public function checkBinNumberExistance(Request $request)
+    {
+        
+            $binNumber = $request->binNumber;
+            $binCheck = Survey::where('binNumber', $binNumber)->first();
+    
+            if ($binCheck) {
+                return $this->throwMessage(200, 'success', 'Bin Number Found!', $binCheck);
+            }
+            
+    
+            return $this->throwMessage(204, 'error', 'Unique Bin Number!');
+        
     }
 
     
@@ -193,7 +216,6 @@ class SurveyController extends Controller
     {
 
             $inputs = $request->all();
-           // dd($inputs);
 
             $rules = [
                 'id' => 'required',
@@ -213,6 +235,9 @@ class SurveyController extends Controller
         try {
 
             $surveyId = $request->id;
+            if($request->has('latitude') && $request->has('longitude')){
+                $request->merge(['tracked_location' => $this->geocodingService->getLocationName($request->latitude, $request->longitude)]);
+            }
             $survey = $this->updateData($request, $surveyId, $this->model, $exceptFieldsArray = ['shopPic', 'binCertificate', 'itemList'], $fileUpload = true, $fileInputName = ['shopPic', 'binCertificate'], $path = $this->uploadDir);
 
             // ==== list of items files of survey
@@ -251,33 +276,16 @@ class SurveyController extends Controller
      * @param  \App\Models\Survey  $survey
      * @return \Illuminate\Http\Response
      */
-    public function show(Survey $survey)
+    public function getArchiveSurveys()
     {
-        //
+        $archiveSurveys = SurveyArchive::where('survey_type', 'Archive')->get();
+        $archiveSurveys = $archiveSurveys->paginate($this->limit);
+
+        return $this->throwMessage(200, 'success', 'All Archive Survey Data ', $archiveSurveys);
+
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Survey  $survey
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Survey $survey)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Survey  $survey
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Survey $survey)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
