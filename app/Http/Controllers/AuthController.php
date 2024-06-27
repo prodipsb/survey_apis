@@ -11,6 +11,7 @@ use App\Utilities\ProxyRequest;
 use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Passport\Passport;
 
 class AuthController extends Controller
 {
@@ -45,60 +46,67 @@ class AuthController extends Controller
     public function authlogin(Request $request)
     {
 
-       $inputs = $request->except(['login_mode']);
+        $inputs = $request->except(['login_mode']);
 
-       $rules = [
-        'email' => [
-            'required'
-        ],
-        'password' => [
-            'required',
-            'string',
-            'min:6', // must be at least 6 characters in length
-        ],
-    ];
-    
-        $validation = Validator::make( $inputs, $rules );
-    
-        if ( $validation->fails() ) {
+        $rules = [
+            'email' => [
+                'required'
+            ],
+            'password' => [
+                'required',
+                'string',
+                'min:6', // must be at least 6 characters in length
+            ],
+        ];
+
+        $validation = Validator::make($inputs, $rules);
+
+        if ($validation->fails()) {
             return $this->throwMessage(400, 'error', $validation->errors());
         }
-       
-       
-          Auth::shouldUse('web');
 
-         if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+
+        Auth::shouldUse('web');
+
+        if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
             $auth = User::where('email', $request->email)->first();
-         }else{
+        } else {
             $inputs['employee_id'] = $inputs['email'];
             unset($inputs['email']);
             $auth = User::where('employee_id', $request->email)->first();
-         }
+        }
 
-         if(!$auth){
+        if (!$auth) {
             return $this->throwMessage(400, 'error', "User not found!");
-         }
+        }
 
-         if($auth->login_attempts == 3 && $auth->last_login_attempted_at >= Carbon::now('Asia/Dhaka')->subMinutes(2)){
+        if ($auth->login_attempts == 3 && $auth->last_login_attempted_at >= Carbon::now('Asia/Dhaka')->subMinutes(2)) {
             return $this->throwMessage(400, 'error', "You have been blocked for \n2 minutes");
-        }else if($auth->login_attempts == 3 && $auth->last_login_attempted_at < Carbon::now('Asia/Dhaka')->subMinutes(2)){
+        } else if ($auth->login_attempts == 3 && $auth->last_login_attempted_at < Carbon::now('Asia/Dhaka')->subMinutes(2)) {
             $auth->login_attempts = 0;
             $auth->last_login_attempted_at = null;
             $auth->save();
         }
 
-       // dd(Auth::guard('passport')->attempt($inputs));
 
-        if(Auth::attempt($inputs)){
+        if (Auth::attempt($inputs)) {
 
             $auth = Auth::user();
 
-            
-            if(!$auth->roles->isEmpty() && $auth->roles[0]->hasPermissionTo($request->login_mode) == false){
+
+            if (!$auth->roles->isEmpty() && $auth->roles[0]->hasPermissionTo($request->login_mode) == false) {
                 return $this->throwMessage(401, 'error', "Permission denied, You don't have {$request->login_mode} permission");
             }
-          
-            $token = $auth->createToken('authToken')->accessToken;
+
+
+            // Create access token
+            $accessToken = $auth->createToken('authToken');
+
+            // Retrieve access token details
+            $accessTokenValue = $accessToken->accessToken;
+            $accessTokenExpiration = Carbon::parse($accessToken->token->expires_at)->diffForHumans();
+
+            // Create refresh token (if needed)
             $refreshToken = $auth->createToken('refreshToken')->accessToken;
 
 
@@ -108,11 +116,11 @@ class AuthController extends Controller
             $user->last_login = Carbon::now();
             $user->status = 'Active';
             $user->save();
-    
+
 
             return response()->json([
                 'token_type' => 'Bearer Token',
-                'access_token' => $token,
+                'access_token' => $accessTokenValue,
                 'user' => [
                     'id' => $user->id,
                     'employee_id' => $user->employee_id,
@@ -121,36 +129,30 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'avatar' => $user->avatar
                 ]
-                ])
-                ->cookie('access_token', $token, 600);
+            ])
+                ->cookie('access_token', $accessTokenValue, 600);
+        } else {
 
-        }else {
-           
             if ($auth->login_attempts <= 2) {
-                 $auth->increment('login_attempts');
-                 $auth->last_login_attempted_at = now('Asia/Dhaka');
-                 $auth->save();
+                $auth->increment('login_attempts');
+                $auth->last_login_attempted_at = now('Asia/Dhaka');
+                $auth->save();
 
-                 return $this->throwMessage(400, 'error', 'User Crediential Missmatch!');
-                 
+                return $this->throwMessage(400, 'error', 'User Crediential Missmatch!');
             } else {
                 return $this->throwMessage(400, 'error', "Maximum Login Attempt Exceeded.\nTry Again After 2 Minutes.");
-
             }
-
-           
-
         }
-
     }
 
 
 
-    public function refreshToken(Request $request){
-       // $token = $request->input('token');
-       // dd($token);
+    public function refreshToken(Request $request)
+    {
+        // $token = $request->input('token');
+        // dd($token);
 
-       $http = new \GuzzleHttp\Client;
+        $http = new \GuzzleHttp\Client;
 
         $response = $http->post('http://4.193.55.34:8080/oauth/token', [
             'form_params' => [
@@ -163,11 +165,10 @@ class AuthController extends Controller
         ]);
 
         return json_decode((string) $response->getBody(), true);
-
     }
 
 
-    
+
     public function logout()
     {
 
@@ -184,7 +185,4 @@ class AuthController extends Controller
             return $this->throwMessage(413, 'error', $e->getMessage());
         }
     }
-
-
-
 }
