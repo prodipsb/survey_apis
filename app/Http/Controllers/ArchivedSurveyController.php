@@ -26,7 +26,9 @@ class ArchivedSurveyController extends Controller
 
             $listData = $listData->where('survey_type', 'Archive');
 
-            $listData = $listData->orderBy('id', 'desc')->paginate($this->limit, ['*'], 'page', $request->page);
+            // $listData = $listData->paginate($this->limit, ['*'], 'page', $request->page);
+            $listData = $listData->paginate($this->limit);
+            // $listData = $listData->orderBy('id', 'desc')->get();
 
             return $this->throwMessage(200, 'success', 'All the list of Archived Surveys ', $listData);
 

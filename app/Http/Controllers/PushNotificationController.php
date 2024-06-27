@@ -19,7 +19,7 @@ class PushNotificationController extends Controller
 
     protected $model = 'PushNotification';
 
-    protected $limit = 10;
+    protected $limit = 20;
     /**
      * Display a listing of the resource.
      *
@@ -216,6 +216,16 @@ class PushNotificationController extends Controller
 
         return $this->throwMessage(200, 'success', 'Push Notification Stored Successfully ', $notification);
 
+    }
+
+    public function getUnReadPushNotifications(){
+        try {
+
+            $unreadPushNotifications = PushNotification::where('receiver_id',auth()->user()->id)->whereNull('read_at')->count();
+            return $this->throwMessage(200, 'success', 'All the list of unread notifications ', $unreadPushNotifications);
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
     }
 
 

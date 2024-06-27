@@ -15,6 +15,8 @@ class Setting extends Model
         'about', 
         'logo', 
         'favicon',
+        'googleMap',
+        'leafletMap',
         'created_by',
         'updated_by'
     ];

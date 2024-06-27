@@ -45,23 +45,42 @@ class NotificationController extends Controller
         }
     }
 
-
     public function unreadNotifications()
-    {
-        try {
+{
+    try {
+        // Get the authenticated user's unread notifications
+        $unreadNotifications = auth()->user()->unreadNotifications()
+            ->orderBy('created_at', 'desc') // Order by creation date in descending order
+            ->get(); // Retrieve the notifications
 
-            $unreadNotifications = auth()->user()->unreadnotifications();
+        // Count the number of unread notifications
+        $unreadCount = $unreadNotifications->count();
 
-            $unreadNotifications = $unreadNotifications->orderBy('read_at', 'asc');
-            $unreadNotifications = $unreadNotifications->orderBy('created_at', 'desc');
-
-            $unreadNotifications = $unreadNotifications->get();
-
-            return $this->throwMessage(200, 'success', 'All the list of unread notifications ', $unreadNotifications);
-        } catch (\Exception $e) {
-            return $this->throwMessage(413, 'error', $e->getMessage());
-        }
+        // Return a success message with the count of unread notifications
+        return $this->throwMessage(200, 'success', 'All the list of unread notifications', $unreadCount);
+    } catch (\Exception $e) {
+        // Return an error message in case of an exception
+        return $this->throwMessage(413, 'error', $e->getMessage());
     }
+}
+
+
+    // public function unreadNotifications()
+    // {
+    //     try {
+
+    //         $unreadNotifications = auth()->user()->unreadnotifications();
+
+    //         $unreadNotifications = $unreadNotifications->orderBy('read_at', 'asc');
+    //         $unreadNotifications = $unreadNotifications->orderBy('created_at', 'desc');
+
+    //         $unreadNotifications = $unreadNotifications->count();
+
+    //         return $this->throwMessage(200, 'success', 'All the list of unread notifications ', $unreadNotifications);
+    //     } catch (\Exception $e) {
+    //         return $this->throwMessage(413, 'error', $e->getMessage());
+    //     }
+    // }
 
     /**
      * Show the form for creating a new resource.

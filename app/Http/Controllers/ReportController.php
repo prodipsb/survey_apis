@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AttendanceResource;
 use App\Http\Resources\SurveyReportResource;
 use App\Http\Resources\SurveyResource;
 use App\Http\Traits\GlobalTraits;
+use App\Models\Attendance;
 use App\Models\Survey;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
 class ReportController extends Controller
 {
     protected $model = 'Survey';
-    protected $limit = 10;
+    protected $limit = 20;
 
     use GlobalTraits;
     /**
@@ -204,77 +207,81 @@ class ReportController extends Controller
 
 
 
-
-
-
-
-
-
-
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function attendanceReport(Request $request)
     {
-        //
+
+        //dd(Auth::user());
+        try {
+            $listData = Attendance::process()->with(['user', 'role', 'supervisor']);
+            // dd($listData->get());
+
+
+            if ($request->has('employee_id')) {
+                $userIds = User::where('employee_id', $request->employee_id)->pluck('id')->toArray();
+                $listData->whereIn('user_id', $userIds);
+            }
+
+            if ($request->has('start_date') && $request->has('end_date')) {
+                $listData->whereBetween('date', [$request->start_date, $request->end_date]);
+            }
+
+            if ($request->has('role_id')) {
+                $listData->where('role_id', $request->role_id);
+            }
+
+            if ($request->has('supervise4_user_id')) {
+                $userIds = User::where('supervisor_user_id', $request->supervise4_user_id)->pluck('id')->toArray();
+                $listData->whereIn('user_id', $userIds)->orWhere('user_id', $request->supervise4_user_id);
+            } elseif ($request->has('supervise3_user_id')) {
+                $userIds = User::where('supervisor_user_id', $request->supervise3_user_id)->pluck('id')->toArray();
+                $listData->whereIn('user_id', $userIds)->with('superviseUsers')->orWhere('user_id', $request->supervise3_user_id);
+            } elseif ($request->has('supervise2_user_id')) {
+                $userIds = User::where('supervisor_user_id', $request->supervise2_user_id)->pluck('id')->toArray();
+                $listData->whereIn('user_id', $userIds)->orWhere('user_id', $request->supervise2_user_id);
+            } elseif ($request->has('supervise_user_id')) {
+                $userIds = User::where('supervisor_user_id', $request->supervise_user_id)->pluck('id')->toArray();
+                // $userIds = User::whereIn('supervisor_user_id', $userIds)->pluck('id')->toArray();
+                $listData->whereIn('user_id', $userIds)->orWhere('user_id', $request->supervise_user_id);
+            }
+
+            if ($request->has('export') && $request->export == true) {
+                $listData = $listData->orderBy('created_at', 'desc')->get();
+                return $this->exportAttendanceData($listData);
+            }
+
+            $listData = $listData->orderBy('created_at', 'desc')->paginate($this->limit);
+
+            return AttendanceResource::collection($listData);
+        } catch (\Exception $e) {
+            return $this->throwMessage(413, 'error', $e->getMessage());
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+
+    private function exportAttendanceData($listData)
     {
-        //
+        $fields = [
+            'Date',
+            'Employee ID',
+            'Name',
+            'Mobile Number',
+            'Role',
+            'Supervisor',
+            'In Time',
+            'In Location',
+            'Out Time',
+            'Out Location',
+        ];
+
+
+        $collection = match ( 'survey' ) {
+            'survey' => SurveyReportResource::collection( $listData ),
+        };
+
+        $collectionData = $collection->toArray( $fields );
+
+        return $this->csvExport($collectionData, $fields, '/uploads/reports');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

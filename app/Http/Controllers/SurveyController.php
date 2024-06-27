@@ -43,25 +43,6 @@ class SurveyController extends Controller
 
 
             $listData = Survey::query();
-
-            // dd($request->has('search1'));
-            // if($request->has('search1')){
-
-            //     dd($request->has('search1'));
-
-            //     $listData = $listData::search($request->search);
-
-            //     // $listData = $listData->when(request('search'), function ($query, $search) {
-            //     //     $query->whereFullText([
-            //     //         'binHolderName',
-            //     //         'binHolderMobile',
-            //     //         'binHolderEmail',
-            //     //         'shopName',
-            //     //         'brandName',
-            //     //         'productName',
-            //     //     ], $search);
-            //     // });
-            // }
            
             if ($request->has('start_date') && $request->has('end_date')) {
                 $listData = $listData->whereBetween('created_at', [$request->start_date, $request->end_date]);
@@ -70,9 +51,8 @@ class SurveyController extends Controller
             $listData = $listData->orderBy('created_at', 'desc');
 
             $listData = $listData->paginate($this->limit);
-            //return CourseResource::collection($listData);
 
-            return $this->throwMessage(200, 'success', 'All the list of Courses ', $listData);
+            return $this->throwMessage(200, 'success', 'All the list of Surveys ', $listData);
 
         } catch (\Exception $e) {
             return $this->throwMessage(413, 'error', $e->getMessage());
@@ -146,7 +126,6 @@ class SurveyController extends Controller
         }
 
 
-
         try {
 
             $request->merge(['user_id' => $this->getAuthID()]);
@@ -158,7 +137,10 @@ class SurveyController extends Controller
 
             if($request->has('latitude') && $request->has('longitude')){
                 $geoLocation = $this->geocodingService->getLocationName($request->latitude, $request->longitude);
-                $request->merge(['tracked_location' => $geoLocation['display_name']]);
+                if($geoLocation){
+                    $request->merge(['tracked_location' => $geoLocation['display_name']]);
+
+                }
             }
 
             $survey = $this->storeData($request, $this->model, $fileUpload = true, $fileInputName = ['shopPic', 'binCertificate'], $path = $this->uploadDir);
