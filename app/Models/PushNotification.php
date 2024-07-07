@@ -21,8 +21,9 @@ class PushNotification extends Model
         'sender_role_name',
         'receiver_role_id',
         'receiver_role_name',
-        'notification_title',
-        'notification_message',
+        'message_title',
+        'message',
+        'status',
         'read_at'
         
     ];

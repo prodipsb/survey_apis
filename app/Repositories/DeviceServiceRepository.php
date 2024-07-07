@@ -47,6 +47,22 @@ class DeviceServiceRepository implements DeviceServiceRepositoryInterface
             $this->storeServiceIssues($deviceService->id, $deviceIssues);
         }
 
+        $notificationData = [
+            'type' => 'Device Serviceing',
+            'sender_id' => auth()->user()->id,
+            'sender_name' => auth()->user()->name,
+            'receiver_id' => auth()->user()->id,
+            'receiver_name' => auth()->user()->name,
+            'message_title' => 'Device Service',
+            'message' => 'Device Service created',
+            'status' => 'Pending'
+        ];
+
+       // dd($notificationData);
+
+        $data = $this->sendPushNotification('PushNotification', $notificationData);
+        //dd($data);
+
         return $deviceService;
     }
 
