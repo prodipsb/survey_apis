@@ -709,5 +709,15 @@ trait GlobalTraits
     }
 
 
+    public function sendPushNotification($model, $storeInput) {
+
+        $model = $this->getModel($model);
+        $insertedData = $model::create($storeInput);
+
+        return $insertedData;
+
+    }
+
+
     
 }
