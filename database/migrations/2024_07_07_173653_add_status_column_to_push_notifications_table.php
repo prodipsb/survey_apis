@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('device_service_issues', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->timestamps();
+        Schema::table('push_notifications', function (Blueprint $table) {
+            $table->string('status')->nullable()->after('message');
         });
     }
 
@@ -27,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('device_service_issues');
+        Schema::table('push_notifications', function (Blueprint $table) {
+            Schema::dropIfExists('status');
+        });
     }
 };
